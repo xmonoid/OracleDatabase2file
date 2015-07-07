@@ -16,9 +16,9 @@ import static org.junit.Assert.*;
  *
  * @author Косых Евгений
  */
-public class OracleDatabase2FileTest {
+public class MainTest {
     
-    public OracleDatabase2FileTest() {
+    public MainTest() {
     }
     
     @BeforeClass
@@ -35,6 +35,18 @@ public class OracleDatabase2FileTest {
     
     @After
     public void tearDown() {
+    }
+
+    /**
+     * Test of main method, of class Main.
+     */
+    @Test
+    public void testMain() {
+        System.out.println("main");
+        String[] args = null;
+        Main.main(args);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
     
 }

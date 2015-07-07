@@ -10,12 +10,8 @@ package ru.nlmk_it.oracledatabase2file;
  * @author Косых Евгений
  */
 public class OracleDatabase2File {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-    }
     
+    public OracleDatabase2File() {
+        
+    }
 }
