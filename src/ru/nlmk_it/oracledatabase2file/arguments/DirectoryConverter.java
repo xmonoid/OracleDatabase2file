@@ -27,7 +27,7 @@ public class DirectoryConverter implements IStringConverter<Path> {
     @Override
     public Path convert(String value) {
         log.trace("Invoking convert() method:\n"
-                + "\tString value => " + value);
+                + "\tString value <= " + value);
         
         Path path = Paths.get(value);
         

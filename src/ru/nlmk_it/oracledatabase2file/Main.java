@@ -6,7 +6,7 @@
 package ru.nlmk_it.oracledatabase2file;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
+import java.io.File;
 import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,11 +27,13 @@ public final class Main {
     public static void main(String[] args) {
         log.info("The program started with arguments: {}", Arrays.toString(args));
         
-        Arguments arguments = new Arguments();
-        
-        // Checking and setting CLI arguments.
-        JCommander commander = new JCommander(arguments);
         try {
+            Arguments arguments = new Arguments(new File(System.getProperty("db2file.configurationFile")));
+        
+            // Checking and setting CLI arguments.
+            JCommander commander = new JCommander(arguments);
+            
+            // Parsing CLI arguments.
             commander.parse(args);
 
             // Print help and exit.
@@ -40,13 +42,10 @@ public final class Main {
                 commander.usage(stringBuilder);
                 log.info(stringBuilder);
             }
-        }
-        catch (ParameterException e) {
-            log.fatal(e);
-        }
-
-        try (OracleDatabase2File exporter = new OracleDatabase2File(arguments)) {
-            exporter.execute();
+            
+            try (OracleDatabase2File exporter = new OracleDatabase2File(arguments)) {
+                exporter.execute();
+            }
         }
         catch (Throwable t) {
             log.fatal("Fatal error: ", t);
