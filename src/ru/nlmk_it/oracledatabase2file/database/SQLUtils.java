@@ -18,15 +18,15 @@ import org.apache.logging.log4j.Logger;
  */
 public final class SQLUtils {
     
-    private static final Logger log = LogManager.getLogger(SQLUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(SQLUtils.class);
     
     public static List<String> splitScript(final String script) {
-        log.trace("It was invoked buildScript() method\n"
+        LOGGER.trace("It was invoked buildScript() method\n"
                 + "\tString script <= " + script);
         
         List<String> result = new ArrayList<>();
         char[] symbol = script.toCharArray();
-        log.debug("The length of script is " + symbol.length + " symbols.");
+        LOGGER.debug("The length of script is " + symbol.length + " symbols.");
         
         boolean isOneLineComment = false;
         boolean isMultiLineComment = false;
@@ -95,19 +95,23 @@ public final class SQLUtils {
             }
         }
         
-        log.trace("splitScript() returned => " + result.toString());
+        LOGGER.trace("splitScript() returned => " + result.toString());
         return result;
     }
     
     
     public static Set<String> getVariables(final String script, final char variableMarker) {
-        log.trace("It was invoked getVariables() method\n"
+        LOGGER.trace("It was invoked getVariables() method\n"
                 + "\tString script <= " + script);
         
         Set<String> result = new HashSet<>();
         
         char[] symbol = script.toCharArray();
-        log.debug("The length of script is " + symbol.length + " symbols.");
+        LOGGER.debug("The length of script is " + symbol.length + " symbols.");
+        
+        // There's removing strings, aliases and comments to simplify
+        // the allocation of the variables
+        StringBuilder copy = new StringBuilder(script);
         
         boolean isOneLineComment = false;
         boolean isMultiLineComment = false;
@@ -132,10 +136,11 @@ public final class SQLUtils {
                             else if (symbol[index] == '"') {
                                 isAlias = true;
                             }
-                            
-                            if (symbol[index] == variableMarker) {
-                                
+                            else {
+                                copy.setCharAt(index, symbol[index]);
+                                continue;
                             }
+                            
                         }
                         else {
                             // The end of an alias.
@@ -164,9 +169,29 @@ public final class SQLUtils {
                     isOneLineComment = false;
                 }
             }
+            
+            copy.setCharAt(index, ' ');
         }
         
-        log.trace("getVariables() returned => " + result.toString());
+        LOGGER.debug("Copied script = " + copy.toString());
+        
+        // Нужно разделить выражение на отдельные элементы.
+        // разделителем является любой символ, кроме:
+        // Букв, цифр, подчёркивания, амперсанда, маркера переменной
+        String[] words = copy.toString().split("[^a-zA-Z0-9_&]+".replace('&', variableMarker));
+        
+        for (String word: words) {
+            
+            if (word.length() < 1) {
+                continue;
+            }
+            //LOGGER.trace("word = " + word);
+            if (word.charAt(0) == variableMarker) {
+                result.add(word.substring(1));
+            }
+        }
+        
+        LOGGER.trace("getVariables() returned => " + result.toString());
         return result;
     }
     

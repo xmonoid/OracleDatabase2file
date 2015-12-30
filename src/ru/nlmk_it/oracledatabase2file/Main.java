@@ -7,6 +7,8 @@ package ru.nlmk_it.oracledatabase2file;
 
 import com.beust.jcommander.JCommander;
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,14 +20,14 @@ import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
  */
 public final class Main {
     
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     
     /**
      * 
      * @param args Command-line arguments
      */
     public static void main(String[] args) {
-        log.info("The program started with arguments: {}", Arrays.toString(args));
+        LOGGER.info("The program started with arguments: {}", Arrays.toString(args));
         
         try {
             Arguments arguments = new Arguments(new File(System.getProperty("db2file.configurationFile")));
@@ -40,18 +42,18 @@ public final class Main {
             if (arguments.isHelp()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 commander.usage(stringBuilder);
-                log.info(stringBuilder);
+                LOGGER.info(stringBuilder);
             }
             
             try (OracleDatabase2File exporter = new OracleDatabase2File(arguments)) {
                 exporter.execute();
             }
         }
-        catch (Throwable t) {
-            log.fatal("Fatal error: ", t);
+        catch (IOException | SQLException | RuntimeException t) {
+            LOGGER.fatal("Fatal error: ", t);
         }
         finally {
-            log.info("Closing log writer");
+            LOGGER.info("Closing log writer");
         }
     }
 }

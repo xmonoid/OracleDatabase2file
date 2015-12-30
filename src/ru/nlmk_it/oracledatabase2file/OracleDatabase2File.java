@@ -18,33 +18,33 @@ import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
  */
 public final class OracleDatabase2File implements AutoCloseable {
     
-    private static final Logger log = LogManager.getLogger(OracleDatabase2File.class);
+    private static final Logger LOGGER = LogManager.getLogger(OracleDatabase2File.class);
     
     private final Connection connection;
     
     public OracleDatabase2File(Arguments arguments) throws SQLException {
-        log.trace("It was created an object of OracleDatabase2File class\n"
+        LOGGER.trace("It was created an object of OracleDatabase2File class\n"
                 + "\tArguments arguments <= " + arguments.toString());
         
         arguments.validate();
         
         String url = arguments.getURL();
         String login = arguments.getLogin();
-        log.debug("Trying connect to database: " + url + "\n"
+        LOGGER.debug("Trying connect to database: " + url + "\n"
                 + "\tlogin = " + login);
         
         connection = DriverManager.getConnection(url, login, arguments.getPassword());
         
-        log.info("Connection created.");
+        LOGGER.info("Connection created.");
     }
     
     public void execute() {
-        log.trace("It was invoked execute() method");
+        LOGGER.trace("It was invoked execute() method");
     }
     
     @Override
     public void close() throws SQLException {
-        log.trace("It was invoked close() method");
+        LOGGER.trace("It was invoked close() method");
         connection.close();
     }
 }

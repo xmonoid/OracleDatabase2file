@@ -43,14 +43,16 @@ public class SQLUtilsTest {
     private static String mrskScript;
     
     private static String kvitMkdScript;
+    
+    private static String chasSectorScript;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        File mrsk = new File("./tmp/mrsk.sql");
+        File script = new File("./tmp/mrsk.sql");
         
         StringBuilder fileData = new StringBuilder();
 	
-        try (BufferedReader reader = new BufferedReader(new FileReader(mrsk))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(script))) {
             char[] buf = new char[1024];
             int numRead;
             while((numRead = reader.read(buf)) != -1){
@@ -60,9 +62,9 @@ public class SQLUtilsTest {
         }
         mrskScript = fileData.toString();
         
-        File mkd = new File("./tmp/kvit_mkd.sql");
+        script = new File("./tmp/kvit_mkd.sql");
         fileData = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(mkd))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(script))) {
             char[] buf = new char[1024];
             int numRead;
             while((numRead = reader.read(buf)) != -1){
@@ -71,6 +73,18 @@ public class SQLUtilsTest {
             }
         }
         kvitMkdScript = fileData.toString();
+        
+        script = new File("./tmp/chas_sector.sql");
+        fileData = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(script))) {
+            char[] buf = new char[1024];
+            int numRead;
+            while((numRead = reader.read(buf)) != -1){
+                String readData = String.valueOf(buf, 0, numRead);
+                fileData.append(readData);
+            }
+        }
+        chasSectorScript = fileData.toString();
     }
 
     /**
@@ -207,6 +221,19 @@ public class SQLUtilsTest {
         List<String> result = SQLUtils.splitScript(script);
         assertEquals(expResult, result);
     }
+    
+    /**
+     * Test of getVariables method, of class SQLUtils.
+     */
+    @Test
+    public void testGetVariablesTrivial() {
+        System.out.println("getVariables (trivial)");
+        String script = "select '1' from dual where &var = 123";
+        Set<String> expResult = new HashSet<>();
+        expResult.add("var");
+        Set<String> result = SQLUtils.getVariables(script, '&');
+        assertEquals(expResult, result);
+    }
 
     /**
      * Test of getVariables method, of class SQLUtils.
@@ -234,6 +261,22 @@ public class SQLUtilsTest {
         expResult.add("pdb_lesk");
         expResult.add("pnot_empty");
         expResult.add("use_filter");
+        Set<String> result = SQLUtils.getVariables(script, '&');
+        assertEquals(expResult, result);
+    }
+    
+    /**
+     * Test of getVariables method, of class SQLUtils.
+     */
+    @Test
+    public void testGetVariablesChasSector() {
+        System.out.println("getVariables (pdat, cis_division, bill_stat, bseg_stat)");
+        String script = chasSectorScript;
+        Set<String> expResult = new HashSet<>();
+        expResult.add("pdat");
+        expResult.add("cis_division");
+        expResult.add("bill_stat");
+        expResult.add("bseg_stat");
         Set<String> result = SQLUtils.getVariables(script, '&');
         assertEquals(expResult, result);
     }
