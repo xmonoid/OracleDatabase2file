@@ -20,11 +20,11 @@ import ru.nlmk_it.oracledatabase2file.database.SQLScript;
  */
 public final class SQLScriptConverter implements IStringConverter<SQLScript> {
     
-    private static final Logger log = LogManager.getLogger(SQLScriptConverter.class);
+    private static final Logger LOGGER = LogManager.getLogger(SQLScriptConverter.class);
     
     @Override
     public SQLScript convert(String value) {
-        log.trace("Invoking convert() method:\n"
+        LOGGER.trace("The method convert() was invoked\n"
                 + "\tString value <= " + value);
 		
         try {
@@ -40,11 +40,11 @@ public final class SQLScriptConverter implements IStringConverter<SQLScript> {
 
             SQLScript result = new SQLScript(f);
             
-            log.trace("convert() returned => " + result);
+            LOGGER.trace("convert() returned => " + result);
             return result;
         }
         catch (SQLException | IOException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ParameterException(e);
         }
     }

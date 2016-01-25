@@ -30,7 +30,7 @@ public final class Main {
         LOGGER.info("The program started with arguments: {}", Arrays.toString(args));
         
         try {
-            Arguments arguments = new Arguments(new File(System.getProperty("db2file.configurationFile")));
+            Arguments arguments = new Arguments();
         
             // Checking and setting CLI arguments.
             JCommander commander = new JCommander(arguments);
@@ -43,7 +43,10 @@ public final class Main {
                 StringBuilder stringBuilder = new StringBuilder();
                 commander.usage(stringBuilder);
                 LOGGER.info(stringBuilder);
+                return;
             }
+            
+            arguments.setParametersFromConfigFile(new File(System.getProperty("db2file.configurationFile")));
             
             try (OracleDatabase2File exporter = new OracleDatabase2File(arguments)) {
                 exporter.execute();

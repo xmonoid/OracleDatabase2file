@@ -5,6 +5,8 @@
  */
 package ru.nlmk_it.oracledatabase2file.arguments;
 
+import ru.nlmk_it.oracledatabase2file.exporters.FiletypeEnum;
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import java.io.File;
@@ -12,6 +14,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +30,7 @@ import ru.nlmk_it.oracledatabase2file.database.SQLScript;
  */
 public final class Arguments {
     
-    private static final Logger log = LogManager.getLogger(Arguments.class);
+    private static final Logger LOGGER = LogManager.getLogger(Arguments.class);
     
     @Parameter(names = {"-help", "-h"},
             description = "Print this help and exit",
@@ -34,13 +39,13 @@ public final class Arguments {
     
     @Parameter(names = {"-filetype", "-type", "-t"},
             description = "The format of the export file",
-            required = false,
+            required = true,
             converter = FiletypeEnumConverter.class)
     private FiletypeEnum filetype;
     
     @Parameter(names = {"-script", "-s"},
             description = "The file that contains the SQL queries",
-            required = false,
+            required = true,
             converter = SQLScriptConverter.class)
     private SQLScript sqlScript;
     
@@ -66,11 +71,26 @@ public final class Arguments {
             required = false)
     private String passrowd;
     
+    @Parameter(names = {"-sql.variableMarker", "-sql.vm"},
+            description = "Variable marker for SQL expression",
+            required = false)
+    private String sqlVariableMarker;
+    
+    @DynamicParameter(names = "-P",
+            description = "Parameters of the SQL expression",
+            required = false)
+    private Map<String, String> sqlParams;
+    
+    @Parameter(names = {"-filename", "-name", "n"},
+            description = "The name of the export file(s)",
+            required = false)
+    private String exportFilename;
+    
     /**
      * Creates new {@code Arguments} instance with empty parameters.
      */
     public Arguments() {
-        log.trace("It was created an object of Arguments with empty params");
+        LOGGER.trace("The object of class Arguments was created with empty parameters");
     }
     
     /**
@@ -80,8 +100,8 @@ public final class Arguments {
      * @param propertyFile the file with some parameters of this program.
      * @throws IOException if an I/O error occurs
      */
-    public Arguments(File propertyFile) throws IOException {
-        log.trace("It was created an object of Arguments \n"
+    public void setParametersFromConfigFile (File propertyFile) throws IOException {
+        LOGGER.trace("The method setParametersFromConfigFile() was invoked\n"
                 + "\tFile propertyFile <= " + propertyFile.getAbsolutePath());
         
         Properties properties = new Properties();
@@ -89,18 +109,23 @@ public final class Arguments {
         properties.load(in);
         
         String property = properties.getProperty("url");
-        if (property != null) {
+        if (property != null && this.url == null) {
             this.url = property;
         }
         
         property = properties.getProperty("login");
-        if (property != null) {
+        if (property != null && this.login == null) {
             this.login = property;
         }
         
         property = properties.getProperty("password");
-        if (property != null) {
+        if (property != null && this.passrowd == null) {
             this.passrowd = property;
+        }
+        
+        property = properties.getProperty("sql.variableMarker");
+        if (property != null && this.sqlVariableMarker == null) {
+            this.sqlVariableMarker = property;
         }
     }
     
@@ -110,8 +135,8 @@ public final class Arguments {
      * {@code false} otherwise.
      */
     public boolean isHelp() {
-        log.trace("It was invoked isHelp() method.");
-        log.trace("isHelp() was returned => " + help);
+        LOGGER.trace("The method isHelp() was invoked.");
+        LOGGER.trace("isHelp() was returned => " + help);
         return help;
     }
     
@@ -120,9 +145,19 @@ public final class Arguments {
      * @return 
      */
     public FiletypeEnum getFiletype() {
-        log.trace("It was invoked getFiletype() method.");
-        log.trace("getFiletype() was returned => " + filetype.toString().toUpperCase());
+        LOGGER.trace("The method getFiletype() was invoked.");
+        LOGGER.trace("getFiletype() was returned => " + filetype.toString().toUpperCase());
         return filetype;
+    }
+    
+    /**
+     * 
+     * @param filetype 
+     */
+    public void setFiletype(FiletypeEnum filetype) {
+        LOGGER.trace("The method setFiletype() was invoked:"
+                + "\tFiletypeEnum filetype <= " + filetype);
+        this.filetype = filetype;
     }
     
     /**
@@ -130,9 +165,19 @@ public final class Arguments {
      * @return 
      */
     public SQLScript getSQLScript() {
-        log.trace("It was invoked getSQLScript() method.");
-        log.trace("getSQLScript() was returned => " + sqlScript);
+        LOGGER.trace("The method getSQLScript() was invoked.");
+        LOGGER.trace("getSQLScript() was returned => " + sqlScript);
         return sqlScript;
+    }
+    
+    /**
+     * 
+     * @param script 
+     */
+    public void setSQLScript(SQLScript script) {
+        LOGGER.trace("The method setSQLScript() was invoked:"
+                + "\tSQLScript script <= " + script);
+        this.sqlScript = script;
     }
     
     /**
@@ -140,9 +185,15 @@ public final class Arguments {
      * @return 
      */
     public Path getExportDir() {
-        log.trace("It was invoked getExportDir() method.");
-        log.trace("getExportDir() was returned => " + exportDir.toString());
+        LOGGER.trace("The method getExportDir() was invoked.");
+        LOGGER.trace("getExportDir() was returned => " + exportDir.toString());
         return exportDir;
+    }
+    
+    public void setExportDir(Path exportDir) {
+        LOGGER.trace("The method setExportDir() was invoked:"
+                + "\tPath exportDir <= " + exportDir);
+        this.exportDir = exportDir;
     }
     
     /**
@@ -150,8 +201,8 @@ public final class Arguments {
      * @return 
      */
     public String getURL() {
-        log.trace("It was invoked getURL() method.");
-        log.trace("getURL() was returned => " + url);
+        LOGGER.trace("The method getURL() was invoked.");
+        LOGGER.trace("getURL() was returned => " + url);
         return url;
     }
     
@@ -160,8 +211,8 @@ public final class Arguments {
      * @return 
      */
     public String getLogin() {
-        log.trace("It was invoked getLogin() method.");
-        log.trace("getLogin() was returned => " + login);
+        LOGGER.trace("The method getLogin() was invoked.");
+        LOGGER.trace("getLogin() was returned => " + login);
         return login;
     }
     
@@ -170,9 +221,73 @@ public final class Arguments {
      * @return 
      */
     public String getPassword() {
-        log.trace("It was invoked getPassword() method.");
-        log.trace("getPassword() was returned => " + passrowd);
+        LOGGER.trace("The method getPassword() was invoked.");
+        LOGGER.trace("getPassword() was returned => " + passrowd);
         return passrowd;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public String getSqlVariableMarker() {
+        LOGGER.trace("The method getSqlVariableMarker() was invoked.");
+        LOGGER.trace("getSqlVariableMarker() was returned => " + sqlVariableMarker);
+        return sqlVariableMarker;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public Map<String, String> getSqlParams() {
+        LOGGER.trace("The method getSqlParams() was invoked.");
+        
+        if (sqlParams == null) {
+            sqlParams = new HashMap<>();
+        }
+        
+        LOGGER.trace("getSqlParams() was returned => " + sqlParams);
+        return sqlParams;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public String getExportFilename() {
+        LOGGER.trace("The method getExportFilename() was invoked.");
+        LOGGER.trace("getExportFilename() was returned => " + exportFilename);
+        return exportFilename;
+    }
+    
+    
+    /**
+     * 
+     * @return 
+     */
+    private String defaultExportFilename() {
+        LOGGER.trace("The method setDefaultExportFilename() was invoked.");
+        
+        StringBuilder defaultFilename = new StringBuilder(sqlScript.toString());
+        
+        if (sqlParams != null) {
+            for (Map.Entry<String, String> entry: sqlParams.entrySet()) {
+                defaultFilename.append("_")
+                        .append(entry.getKey())
+                        .append("=")
+                        .append(entry.getValue());
+            }
+        }
+        
+        defaultFilename.append(
+                new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(
+                        new java.util.Date()));
+        
+        String result = defaultFilename.toString();
+        
+        LOGGER.trace("defaultExportFilename() was returned => " + result);
+        return result;
     }
     
     /**
@@ -180,7 +295,7 @@ public final class Arguments {
      * @throws ParameterException if any parameter is invalid.
      */
     public void validate() throws ParameterException {
-        log.trace("It was invoked validate() method.");
+        LOGGER.trace("The method validate() was invoked.");
         
         if (exportDir == null) {
             throw new ParameterException("The following option is required: { -exportdir | -dir | -d } <directory>");
@@ -200,35 +315,44 @@ public final class Arguments {
         if (passrowd == null) {
             throw new ParameterException("The following option is required: { -password | -p }");
         }
+        if (exportFilename == null) {
+            exportFilename = defaultExportFilename();
+        }
     }
     
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("[");
+        LOGGER.trace("The method toString() was invoked.");
+        
+        StringBuilder stringBuilder = new StringBuilder("[");
         
         if (exportDir != null) {
-            result.append("exportDir = ").append(exportDir).append(",");
+            stringBuilder.append("exportDir = ").append(exportDir).append(",");
         }
         if (filetype != null) {
-            result.append("filetype = ").append(filetype).append("; ");
+            stringBuilder.append("filetype = ").append(filetype).append("; ");
         }
         if (sqlScript != null) {
-            result.append("sqlSqript = ").append(sqlScript).append("; ");
+            stringBuilder.append("sqlSqript = ").append(sqlScript).append("; ");
         }
         if (url != null) {
-            result.append("url = ").append(url).append("; ");
+            stringBuilder.append("url = ").append(url).append("; ");
         }
         if (login != null) {
-            result.append("login = ").append(login).append("; ");
+            stringBuilder.append("login = ").append(login).append("; ");
         }
         if (passrowd != null) {
-            result.append("password = ").append(passrowd.replaceAll(".", "*")).append("; ");
+            stringBuilder.append("password = ").append(passrowd.replaceAll(".", "*")).append("; ");
         }
         
-        int length = result.length();
-        if (result.lastIndexOf("; ") == length - "; ".length()) {
-            result.delete(length - 1, length);
+        int length = stringBuilder.length();
+        if (stringBuilder.lastIndexOf("; ") == length - "; ".length()) {
+            stringBuilder.delete(length - 1, length);
         }
-        return result.append("]").toString();
+        
+        String result = stringBuilder.append("]").toString();
+        
+        LOGGER.trace("toString() was returned => " + result);
+        return result;
     }
 }

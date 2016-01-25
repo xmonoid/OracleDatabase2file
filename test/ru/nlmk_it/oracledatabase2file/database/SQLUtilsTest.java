@@ -121,7 +121,6 @@ public class SQLUtilsTest {
         System.out.println("splitScript (semicolons)");
         String script = " ; -- ;\n ; /*;*/ ; ";
         List<String> expResult = new ArrayList<>();
-        expResult.add("");
         expResult.add("-- ;");
         expResult.add("/*;*/");
         List<String> result = SQLUtils.splitScript(script);
@@ -140,6 +139,7 @@ public class SQLUtilsTest {
                 + "*/\n"
                 + "-- ;";
         List<String> expResult = new ArrayList<>();
+        expResult.add("-- comm1\n\n/* ; and I will always love you; \n*/\n--");
         List<String> result = SQLUtils.splitScript(script);
         assertEquals(expResult, result);
     }
@@ -231,7 +231,7 @@ public class SQLUtilsTest {
         String script = "select '1' from dual where &var = 123";
         Set<String> expResult = new HashSet<>();
         expResult.add("var");
-        Set<String> result = SQLUtils.getVariables(script, '&');
+        Set<String> result = SQLUtils.getVariables(script, "&");
         assertEquals(expResult, result);
     }
 
@@ -244,7 +244,7 @@ public class SQLUtilsTest {
         String script = mrskScript;
         Set<String> expResult = new HashSet<>();
         expResult.add("pdat");
-        Set<String> result = SQLUtils.getVariables(script, '&');
+        Set<String> result = SQLUtils.getVariables(script, "&");
         assertEquals(expResult, result);
     }
     
@@ -261,7 +261,7 @@ public class SQLUtilsTest {
         expResult.add("pdb_lesk");
         expResult.add("pnot_empty");
         expResult.add("use_filter");
-        Set<String> result = SQLUtils.getVariables(script, '&');
+        Set<String> result = SQLUtils.getVariables(script, "&");
         assertEquals(expResult, result);
     }
     
@@ -277,7 +277,98 @@ public class SQLUtilsTest {
         expResult.add("cis_division");
         expResult.add("bill_stat");
         expResult.add("bseg_stat");
-        Set<String> result = SQLUtils.getVariables(script, '&');
+        Set<String> result = SQLUtils.getVariables(script, "&");
         assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of replaceCharSequence method, of class SQLUtils.
+     */
+    @Test
+    public void testReplaceCharSequenceTrivial() {
+        System.out.println("replaceCharSequence (trivial)");
+        
+        String script = "select '1' from dual where &var = 123";
+        
+        Set<String> expResult = new HashSet<>();
+        expResult.add("var");
+        
+        String copy = SQLUtils.replaceCharSequence(script, "&", ":");
+        
+        Set<String> result = SQLUtils.getVariables(copy, ":");
+        
+        assertEquals(expResult, result);
+    }
+    
+    /**
+     * Test of replaceCharSequence method, of class SQLUtils.
+     */
+    @Test
+    public void testReplaceCharSequenceMrsk() {
+        System.out.println("replaceCharSequence (pdat)");
+        String script = mrskScript;
+        Set<String> expResult = new HashSet<>();
+        expResult.add("pdat");
+        
+        String copy = SQLUtils.replaceCharSequence(script, "&", ":");
+        
+        Set<String> result = SQLUtils.getVariables(copy, ":");
+        
+        assertEquals(expResult, result);
+    }
+    
+    /**
+     * Test of replaceCharSequence method, of class SQLUtils.
+     */
+    @Test
+    public void testReplaceCharSequenceMkd() {
+        System.out.println("replaceCharSequence (pdat, pleskgesk, pdb_lesk, pnot_empty, use_filter)");
+        String script = kvitMkdScript;
+        Set<String> expResult = new HashSet<>();
+        expResult.add("pdat");
+        expResult.add("pleskgesk");
+        expResult.add("pdb_lesk");
+        expResult.add("pnot_empty");
+        expResult.add("use_filter");
+        
+        String copy = SQLUtils.replaceCharSequence(script, "&", ":");
+        
+        Set<String> result = SQLUtils.getVariables(copy, ":");
+        assertEquals(expResult, result);
+    }
+    
+    /**
+     * Test of replaceCharSequence method, of class SQLUtils.
+     */
+    @Test
+    public void testReplaceCharSequenceChasSector() {
+        System.out.println("replaceCharSequence (pdat, cis_division, bill_stat, bseg_stat)");
+        String script = chasSectorScript;
+        Set<String> expResult = new HashSet<>();
+        expResult.add("pdat");
+        expResult.add("cis_division");
+        expResult.add("bill_stat");
+        expResult.add("bseg_stat");
+        
+        String copy = SQLUtils.replaceCharSequence(script, "&", ":");
+        
+        Set<String> result = SQLUtils.getVariables(copy, ":");
+        assertEquals(expResult, result);
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void testReplaceCommentsToSpace() {
+        System.out.println("replaceCommentsToSpace ");
+        
+        String script = "--insert \nselect/*from wrong*/from--wrong2\ndual";
+        
+        String expect = "         \nselect              from        \ndual";
+        
+        String actual = SQLUtils.replaceCommentsToSpace(script);
+        
+        assertEquals(expect, actual);
     }
 }

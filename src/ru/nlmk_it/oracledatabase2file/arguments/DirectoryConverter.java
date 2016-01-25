@@ -21,28 +21,29 @@ import org.apache.logging.log4j.Logger;
  */
 public class DirectoryConverter implements IStringConverter<Path> {
     
-    private static final Logger log = LogManager.getLogger(DirectoryConverter.class);
+    private static final Logger LOGGER = LogManager.getLogger(DirectoryConverter.class);
     
     
     @Override
     public Path convert(String value) {
-        log.trace("Invoking convert() method:\n"
+        LOGGER.trace("The method convert() was invoked\n"
                 + "\tString value <= " + value);
         
         Path path = Paths.get(value);
         
         try {
             Files.createDirectory(path);
-            log.trace("convert() returned => " + path.normalize());
+            LOGGER.trace("convert() returned => " + path.normalize());
             return path;
         }
         catch (FileAlreadyExistsException e) {
-            log.trace("Directory already exists.");
-            log.trace("convert() returned => " + path.normalize());
+            LOGGER.trace("Directory already exists.");
+            LOGGER.trace("convert() returned => " + path.normalize());
+            LOGGER.error(e, e);
             return path;
         }
         catch (IOException e) {
-            log.error(e, e);
+            LOGGER.error(e, e);
             throw new ParameterException("Can't create the export directory: " + value);
         }
     }
