@@ -6,6 +6,7 @@
 package ru.nlmk_it.oracledatabase2file.exporters;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
@@ -20,8 +21,8 @@ final class CSVExporter extends Exporter {
     
     private static final Logger LOGGER = LogManager.getLogger(CSVExporter.class);
     
-    public CSVExporter(String exportFilename) {
-        super(exportFilename);
+    protected CSVExporter(String exportFilename, Path exportPath) {
+        super(exportFilename, exportPath);
         LOGGER.trace("The object of CSVExporter class was created.");
     }
 

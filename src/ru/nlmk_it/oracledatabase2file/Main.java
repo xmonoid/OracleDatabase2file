@@ -56,7 +56,7 @@ public final class Main {
             LOGGER.fatal("Fatal error: ", t);
         }
         finally {
-            LOGGER.info("Closing log writer");
+            LOGGER.info("Closing log writer.");
         }
     }
 }

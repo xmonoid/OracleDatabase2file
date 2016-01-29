@@ -45,6 +45,7 @@ public final class OracleDatabase2File implements AutoCloseable {
                 + "\tArguments arguments <= " + arguments.toString());
         
         arguments.validate();
+        LOGGER.debug("All arguments = " + arguments.toString());
         
         String url = arguments.getURL();
         String login = arguments.getLogin();
@@ -53,7 +54,7 @@ public final class OracleDatabase2File implements AutoCloseable {
         
         connection = DriverManager.getConnection(url, login, arguments.getPassword());
         
-        LOGGER.info("Connection created.");
+        LOGGER.info("Database connection created.");
         
         this.arguments = arguments;
     }
@@ -70,19 +71,25 @@ public final class OracleDatabase2File implements AutoCloseable {
         
         script.buildScript(arguments.getSqlVariableMarker());
         
-        Map<String, String> params = arguments.getSqlParams();
+        Set<String> vars = script.getVariables();
+        LOGGER.debug("The set of all parameters in the script = " + vars);
         
-        checkBindedVariables(script.getVariables(), params.keySet());
+        Map<String, String> params = arguments.getSqlParams();
+        LOGGER.debug("Actual SQL parameters = " + params);
+        
+        checkBindedVariables(vars, params.keySet());
         
         List<SQLExpression> expressions = script.getExpressions();
         
-        Set<ResultSet> resultSets = new HashSet<>();
+        LOGGER.info("There's selected " + expressions.size() + " expressions.");
         
+        Set<ResultSet> resultSets = new HashSet<>();
         for (SQLExpression expression: expressions) {
+            LOGGER.debug("Executing the expression =\n" + expression.toStringShort());
             
-            Set<String> variables = SQLUtils.getVariables(expression.toString(),
-                    arguments.getSqlVariableMarker());
+            Set<String> variables = SQLUtils.getVariables(expression.toString(), ":");
             
+            LOGGER.debug("Variables in the current expression: " + variables);
             expression.createStatement(connection);
             
             for (String var: variables) {
@@ -90,10 +97,12 @@ public final class OracleDatabase2File implements AutoCloseable {
                 if (!params.containsKey(var)) {
                     throw new SQLException("The variable '" + var + "' doesn't binded.");
                 }
-                expression.bindVariable(var, params.get(var));
+                expression.bindVariable(var,
+                        SQLUtils.bindedObject(params.get(var), arguments.getSqlDateFormat()));
             }
             
             if (expression instanceof Select) {
+                LOGGER.debug("The expression was recognized as the Select statement.");
                 Select select = (Select) expression;
                 ResultSet resultSet = select.executeSelect();
 
@@ -103,6 +112,7 @@ public final class OracleDatabase2File implements AutoCloseable {
                 expression.execute();
             }
         }
+        LOGGER.info("All SQL expressions executed correctly, it's starting the export.");
         
         Exporter exporter = Exporter.getExporter(arguments);
         
@@ -131,6 +141,9 @@ public final class OracleDatabase2File implements AutoCloseable {
      */
     static void checkBindedVariables(Set<String> requiredVariables,
             Set<String> actualVariables) throws SQLException {
+        LOGGER.trace("The method checkBindedVariables() was invoked:\n"
+                + "\tSet<String> requiredVariables = " + requiredVariables + "\n"
+                + "\tSet<String> actualVariables = " + actualVariables);
         
         for (String variable: requiredVariables) {
             

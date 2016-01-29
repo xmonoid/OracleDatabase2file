@@ -39,7 +39,6 @@ public class DirectoryConverter implements IStringConverter<Path> {
         catch (FileAlreadyExistsException e) {
             LOGGER.trace("Directory already exists.");
             LOGGER.trace("convert() returned => " + path.normalize());
-            LOGGER.error(e, e);
             return path;
         }
         catch (IOException e) {

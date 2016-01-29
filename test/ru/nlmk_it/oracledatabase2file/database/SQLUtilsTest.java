@@ -363,9 +363,9 @@ public class SQLUtilsTest {
     public void testReplaceCommentsToSpace() {
         System.out.println("replaceCommentsToSpace ");
         
-        String script = "--insert \nselect/*from wrong*/from--wrong2\ndual";
+        String script = "--insert \nselect '1' as \"number\"/*from \"wrong*/from--wrong2\ndual";
         
-        String expect = "         \nselect              from        \ndual";
+        String expect = "         \nselect '1' as \"number\"               from        \ndual";
         
         String actual = SQLUtils.replaceCommentsToSpace(script);
         

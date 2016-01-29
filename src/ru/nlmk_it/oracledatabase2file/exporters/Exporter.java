@@ -1,17 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ru.nlmk_it.oracledatabase2file.exporters;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
+import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
  *
@@ -21,16 +18,23 @@ public abstract class Exporter {
     
     private static final Logger LOGGER = LogManager.getLogger(Exporter.class);
     
-    protected final String exportFilename;
+    protected final String exportFilenameTemplate;
+    
+    protected String actualExportFilename;
+    
+    protected final Path exportPath;
     
     /**
      * 
      * @param exportFilename 
+     * @param exportPath 
      */
-    protected Exporter(String exportFilename) {
-        LOGGER.trace("The object of Exporter class was created,\n"
-                + "\tFile exportFile <= " + exportFilename);
-        this.exportFilename = exportFilename;
+    protected Exporter(String exportFilename, Path exportPath) {
+        LOGGER.trace("The object of Exporter class was created:\n"
+                + "\tFile exportFile <= " + substring(exportFilename));
+        this.actualExportFilename = 
+                this.exportFilenameTemplate = exportFilename;
+        this.exportPath = exportPath;
     }
     
     /**
@@ -39,7 +43,7 @@ public abstract class Exporter {
      * @return 
      */
     public static Exporter getExporter(Arguments arguments) {
-        LOGGER.trace("The method getExporter() was invoked,\n"
+        LOGGER.trace("The method getExporter() was invoked:\n"
                 + "\tArguments arguments <= " + arguments);
         
         FiletypeEnum filetype = arguments.getFiletype();
@@ -47,16 +51,20 @@ public abstract class Exporter {
         Exporter result;
         switch (filetype) {
             case XLSX:
-                result = new XLSXExporter(arguments.getExportFilename());
+                result = new XLSXExporter(arguments.getExportFilename(),
+                        arguments.getExportDir(), 
+                        arguments.getXlsxRowsInTheBatch());
                 break;
             case DBF:
-                result = new DBFExporter(arguments.getExportFilename());
+                result = new DBFExporter(arguments.getExportFilename(),
+                        arguments.getExportDir());
                 break;
             case CSV:
-                result = new CSVExporter(arguments.getExportFilename());
+                result = new CSVExporter(arguments.getExportFilename(),
+                        arguments.getExportDir());
                 break;
             default:
-                throw new RuntimeException("Shit happens...");
+                throw new RuntimeException("Unsupported filetype");
         }
         
         LOGGER.trace("getExporter() returned => " + result);
@@ -81,11 +89,11 @@ public abstract class Exporter {
     
     @Override
     public String toString() {
-        LOGGER.trace("The method getExporter() was invoked.");
+        LOGGER.trace("The method toString() was invoked.");
         
-        String result = getClass().getName() + "[" + exportFilename + "]";
+        String result = getClass().getName() + "[" + exportFilenameTemplate + "]";
         
-        LOGGER.trace("getExporter() returned => " + result);
+        LOGGER.trace("toString() returned => " + result);
         return result;
     }
 }

@@ -5,6 +5,8 @@
  */
 package ru.nlmk_it.oracledatabase2file.database;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,15 +28,8 @@ public final class SQLUtils {
      * @return 
      */
     public static List<String> splitScript(final String script) {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("The method buildScript() was invoked\n"
-                + "\tString script <= " + script);
-        }
-        else {
-            LOGGER.debug("The method buildScript() was invoked\n"
-                + "\tString script <= " + (script == null ? "null" 
-                        : (script.length() <= 30 ? script : script.substring(0, 30))));
-        }
+        LOGGER.trace("The method splitScript() was invoked\n"
+            + "\tString script <= " + script);
         
         List<String> result = new ArrayList<>();
         
@@ -81,10 +76,8 @@ public final class SQLUtils {
      */
     public static Set<String> getVariables(final String script, final String variableMarker) {
         LOGGER.trace("The method getVariables() was invoked\n"
-                + "\tString script <= " + (script == null ? "null" 
-                        : (script.length() <= 30 ? script : script.substring(0, 30)))
-                + "\n\tString variableMarker <= " + (variableMarker == null ? "null" 
-                        : (variableMarker.length() <= 30 ? script : variableMarker.substring(0, 30))));
+                + "\tString script <= " + script
+                + "\n\tString variableMarker <= " + variableMarker);
         
         Set<String> result = new HashSet<>();
         
@@ -117,32 +110,28 @@ public final class SQLUtils {
      * @param newSequence
      * @return 
      */
-    public static String replaceCharSequence(String expression, String oldSequence, String newSequence) {
+    public static String replaceCharSequence(String expression,
+            String oldSequence,
+            String newSequence) {
+        LOGGER.trace("The method replaceCharSequence() was invoked\n"
+                + "\tString expression <= " + expression + "\n"
+                + "\tString oldSequence <= " + oldSequence + "\n"
+                + "\tString newSequence <= " + newSequence);
 
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("The method replaceCharSequence() was invoked\n"
-                    + "\tString expression <= " + expression + "\n"
-                    + "\tString oldSequence <= " + oldSequence + "\n"
-                    + "\tString newSequence <= " + newSequence);
-        }
-        else {
-            LOGGER.debug("The method replaceCharSequence() was invoked\n"
-                    + "\tString expression <= " + (expression == null ? "null"
-                            : (expression.length() <= 30 ? expression
-                                    : expression.substring(0, 30) + "...")) + "\n"
-                    + "\tString oldSequence <= " + (oldSequence == null ? "null"
-                            : (oldSequence.length() <= 30 ? oldSequence
-                                    : oldSequence.substring(0, 30) + "...")) + "\n"
-                    + "\tString newSequence <= " + (newSequence == null ? "null"
-                            : (newSequence.length() <= 30 ? newSequence
-                                    : newSequence.substring(0, 30))));
-        }
+        String copy = replaceCommentsStringsAndAliasesToSpace(expression);
 	
-	String result = replaceCommentsStringsAndAliasesToSpace(expression)
-                .replaceAll(oldSequence, newSequence);
+        StringBuilder result = new StringBuilder(expression);
+        
+        int position;
+	while ((position = copy.indexOf(oldSequence)) >= 0) {
+            
+            result.replace(position, position + oldSequence.length(), newSequence);
+            
+            copy = replaceCommentsStringsAndAliasesToSpace(result.toString());
+        }
         
         LOGGER.trace("replaceCharSequence => " + result);
-        return result;
+        return result.toString();
     }
     
     
@@ -153,11 +142,10 @@ public final class SQLUtils {
      */
     private static String replaceCommentsStringsAndAliasesToSpace(final String script) {
         LOGGER.trace("The method replaceCommentsStringsAndAliasesToSpace() was invoked,\n"
-                + "\tString script <= " + (script == null ? "null" 
-                        : (script.length() <= 30 ? script : script.substring(0, 30))));
+                + "\tString script <= " + script);
         
         char[] symbol = script.toCharArray();
-        LOGGER.debug("The length of script is " + symbol.length + " symbols.");
+        LOGGER.trace("The length of script is " + symbol.length + " symbols.");
         
         // There's removing strings, aliases and comments to simplify
         // the allocation of the variables
@@ -238,11 +226,10 @@ public final class SQLUtils {
      */
     public static String replaceCommentsToSpace(final String script) {
         LOGGER.trace("The method replaceCommentsToSpace() was invoked,\n"
-                + "\tString script <= " + (script == null ? "null" 
-                        : (script.length() <= 30 ? script : script.substring(0, 30))));
+                + "\tString script <= " + script);
         
         char[] symbol = script.toCharArray();
-        LOGGER.debug("The length of script is " + symbol.length + " symbols.");
+        LOGGER.trace("The length of script is " + symbol.length + " symbols.");
         
         // There's removing strings, aliases and comments to simplify
         // the allocation of the variables
@@ -288,6 +275,7 @@ public final class SQLUtils {
                             if (symbol[index] == '"') {
                                 isAlias = false;
                             }
+                            continue;
                         }
                     }
                     else {
@@ -295,6 +283,7 @@ public final class SQLUtils {
                         if (symbol[index] == '\'') {
                             isString = false;
                         }
+                        continue;
                     }
                 }
                 else {
@@ -319,6 +308,28 @@ public final class SQLUtils {
         
         LOGGER.trace("Copied script = " + result);
         
+        return result;
+    }
+    
+    /**
+     * 
+     * @param enteredValue
+     * @param dateFormat
+     * @return 
+     */
+    public static Object bindedObject(String enteredValue, DateFormat dateFormat) {
+        LOGGER.trace("The method bindedObject() was invoked:\n"
+                + "\tString enteredValue <= " + enteredValue);
+        
+        Object result;
+        try {
+            
+            result = dateFormat.parse(enteredValue);
+        }
+        catch (ParseException e) {
+            result = enteredValue;
+        }
+        LOGGER.trace("bindedObject() returned => " + result);
         return result;
     }
 }

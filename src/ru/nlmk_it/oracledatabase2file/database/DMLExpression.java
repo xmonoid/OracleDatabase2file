@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import oracle.jdbc.OraclePreparedStatement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
  *
@@ -22,7 +23,7 @@ public abstract class DMLExpression extends SQLExpression {
     public DMLExpression(String expression) {
         super(expression);
         LOGGER.trace("The object of DMLExpression class was created\n"
-                + "\tString expression <= " + ((expression.length() > 30) ? expression.substring(0, 30) + "..." : expression));
+                + "\tString expression <= " + substring(expression));
     }
     
     @Override

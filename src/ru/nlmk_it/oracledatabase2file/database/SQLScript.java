@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
+import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.*;
 
 /**
  * TODO: The class contains the stubs of methods.
@@ -73,7 +73,7 @@ public class SQLScript {
     
     public void buildScript(String sqlVariableMarker) throws SQLException {
         LOGGER.trace("The method buildScript() was invoked.\n"
-                + "\tStringBuilder script <= " + (fileData.length() <= 50 ? fileData.toString() : fileData.substring(0, 50)));
+                + "\tStringBuilder script <= " + substring(sqlVariableMarker));
         
         if (fileData == null) {
             throw new SQLException("Source file doesn't contain any SQL expressions");
@@ -87,7 +87,9 @@ public class SQLScript {
         
         for (String expression: expressionList) {
             
-            expressions.add(SQLExpression.recognizeExpression(expression));
+            expressions.add(SQLExpression.recognizeExpression(
+                    SQLUtils.replaceCharSequence(expression, sqlVariableMarker, ":"))
+            );
         }
     }
     

@@ -2,3 +2,6 @@ url       : jdbc:oracle:thin:@testapp.lesk.ru:1521:LESKUR3
 login     : lcmccb
 password  : lcmccb2
 sql.variableMarker  : &
+exportDirectory     : export
+xlsx.rowsInTheBatch : 25000
+sql.dateFormat      : dd.MM.yyyy

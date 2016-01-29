@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
  *
@@ -21,13 +22,15 @@ public final class Select extends DMLExpression {
     public Select(String expression) {
         super(expression);
         LOGGER.trace("The object of Select class was created\n"
-                + "\tString expression <= " + ((expression.length() > 30) ? expression.substring(0, 30) + "..." : expression));
+                + "\tString expression <= " + substring(expression));
     }
     
     public ResultSet executeSelect() throws SQLException {
         LOGGER.trace("The method executeSelect() was invoked.");
+        LOGGER.info("Executing select...");
         ResultSet result = preparedStatement.executeQuery();
         
+        LOGGER.info("The select statement executed correctly.");
         LOGGER.trace("executeSelect() returned => " + result);
         return result;
     }
@@ -35,10 +38,7 @@ public final class Select extends DMLExpression {
     @Override
     public String toString() {
         LOGGER.trace("The method executeSelect() was invoked.");
-        
-        String result = (expression.length() > 30) ? expression.substring(0, 30) + "..." : expression;
-        
-        LOGGER.trace("toString() returned => " + result);
-        return result;
+        LOGGER.trace("toString() returned => " + expression);
+        return expression;
     }
 }

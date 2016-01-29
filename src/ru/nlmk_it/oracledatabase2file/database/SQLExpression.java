@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import oracle.jdbc.OraclePreparedStatement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
  *
@@ -25,10 +26,9 @@ public abstract class SQLExpression {
     
     public SQLExpression(String expression) {
         LOGGER.trace("The object of SQLExpression class was created\n"
-                + "\tString expression <= " + (expression == null ? "null" 
-                        : ((expression.length() > 30) ? expression.substring(0, 30) + "..." : expression)));
+                + "\tString expression <= " + substring(expression));
         // Некоторые команды (такие как commit) выражений не содержат.
-        this.expression =  (expression == null || expression.isEmpty()) ? "" : expression.trim();
+        this.expression = (expression == null || expression.isEmpty()) ? "" : expression.trim();
     }
     
     @Override
@@ -36,6 +36,16 @@ public abstract class SQLExpression {
         LOGGER.trace("The method toString() was created\n");
         LOGGER.trace("toString() was returned => " + expression);
         return expression;
+    }
+    
+    
+    /**
+     * 
+     * @return 
+     */
+    public String toStringShort() {
+        
+        return substring(expression);
     }
     
     /**
@@ -55,7 +65,7 @@ public abstract class SQLExpression {
      */
     public void bindVariable(String name, Object value) throws SQLException {
         LOGGER.trace("The method bindVariable() was invoked\n"
-                + "\tString name <= " + name + "\n"
+                + "\tString name <= " + substring(name) + "\n"
                 + "\tObject value <= " + value);
         
         if (value instanceof java.util.Date) {

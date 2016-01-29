@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +69,7 @@ public final class Arguments {
     @Parameter(names = {"-password", "-p"},
             description = "User password for database connection",
             password = true,
+            echoInput = true,
             required = false)
     private String passrowd;
     
@@ -76,15 +78,27 @@ public final class Arguments {
             required = false)
     private String sqlVariableMarker;
     
+    @Parameter(names = {"-sql.dateFormat", "-sql.df"},
+            description = "The format of date type",
+            required = false)
+    private DateFormat sqlDateFormat;
+    
     @DynamicParameter(names = "-P",
             description = "Parameters of the SQL expression",
             required = false)
-    private Map<String, String> sqlParams;
+    private Map<String, String> sqlParams = new HashMap<>();
     
     @Parameter(names = {"-filename", "-name", "n"},
             description = "The name of the export file(s)",
             required = false)
     private String exportFilename;
+    
+    private static final int DEFAULT_XLSX_ROWS_IN_THE_BATCH = 1000;
+    
+    @Parameter(names = {"-xlsx.rowsInTheBatch"},
+            description = "The number of saved rows in the batch",
+            required = false)
+    private int xlsxRowsInTheBatch = DEFAULT_XLSX_ROWS_IN_THE_BATCH;
     
     /**
      * Creates new {@code Arguments} instance with empty parameters.
@@ -127,6 +141,23 @@ public final class Arguments {
         if (property != null && this.sqlVariableMarker == null) {
             this.sqlVariableMarker = property;
         }
+        
+        property = properties.getProperty("sql.dateFormat");
+        if (property != null && this.sqlDateFormat == null) {
+            this.sqlDateFormat = new SimpleDateFormat(property);
+        }
+        
+        property = properties.getProperty("exportDirectory");
+        if (property != null && this.exportDir == null) {
+            this.exportDir = new DirectoryConverter().convert(property);
+        }
+        
+        property = properties.getProperty("xlsx.rowsInTheBatch");
+        if (property != null 
+                && (this.xlsxRowsInTheBatch <= 0 
+                || Integer.parseInt(property) != DEFAULT_XLSX_ROWS_IN_THE_BATCH)) {
+            this.xlsxRowsInTheBatch = Integer.parseInt(property);
+        }
     }
     
     /**
@@ -155,7 +186,7 @@ public final class Arguments {
      * @param filetype 
      */
     public void setFiletype(FiletypeEnum filetype) {
-        LOGGER.trace("The method setFiletype() was invoked:"
+        LOGGER.trace("The method setFiletype() was invoked:\n"
                 + "\tFiletypeEnum filetype <= " + filetype);
         this.filetype = filetype;
     }
@@ -175,7 +206,7 @@ public final class Arguments {
      * @param script 
      */
     public void setSQLScript(SQLScript script) {
-        LOGGER.trace("The method setSQLScript() was invoked:"
+        LOGGER.trace("The method setSQLScript() was invoked:\n"
                 + "\tSQLScript script <= " + script);
         this.sqlScript = script;
     }
@@ -190,8 +221,12 @@ public final class Arguments {
         return exportDir;
     }
     
+    /**
+     * 
+     * @param exportDir 
+     */
     public void setExportDir(Path exportDir) {
-        LOGGER.trace("The method setExportDir() was invoked:"
+        LOGGER.trace("The method setExportDir() was invoked:\n"
                 + "\tPath exportDir <= " + exportDir);
         this.exportDir = exportDir;
     }
@@ -222,7 +257,7 @@ public final class Arguments {
      */
     public String getPassword() {
         LOGGER.trace("The method getPassword() was invoked.");
-        LOGGER.trace("getPassword() was returned => " + passrowd);
+        LOGGER.trace("getPassword() was returned => " + passrowd.replaceAll(".", "*"));
         return passrowd;
     }
     
@@ -236,6 +271,15 @@ public final class Arguments {
         return sqlVariableMarker;
     }
     
+    /**
+     * 
+     * @return 
+     */
+    public DateFormat getSqlDateFormat() {
+        LOGGER.trace("The method getSqlDateFormat() was invoked.");
+        LOGGER.trace("getSqlDateFormat() was returned => " + sqlDateFormat);
+        return sqlDateFormat;
+    }
     /**
      * 
      * @return 
@@ -261,6 +305,12 @@ public final class Arguments {
         return exportFilename;
     }
     
+    public int getXlsxRowsInTheBatch() {
+        LOGGER.trace("The method getXlsxRowsInTheBatch() was invoked.");
+        LOGGER.trace("getXlsxRowsInTheBatch() was returned => " + xlsxRowsInTheBatch);
+        return xlsxRowsInTheBatch;
+    }
+    
     
     /**
      * 
@@ -280,8 +330,8 @@ public final class Arguments {
             }
         }
         
-        defaultFilename.append(
-                new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(
+        defaultFilename.append("_").append(
+                new SimpleDateFormat("dd.MM.yyyy HH.mm.ss").format(
                         new java.util.Date()));
         
         String result = defaultFilename.toString();
@@ -318,6 +368,10 @@ public final class Arguments {
         if (exportFilename == null) {
             exportFilename = defaultExportFilename();
         }
+        if (xlsxRowsInTheBatch <= 0) {
+            throw new ParameterException("Incorrect value for parameter xlsx.rowsInTheBatch : "
+                    + xlsxRowsInTheBatch);
+        }
     }
     
     @Override
@@ -327,7 +381,7 @@ public final class Arguments {
         StringBuilder stringBuilder = new StringBuilder("[");
         
         if (exportDir != null) {
-            stringBuilder.append("exportDir = ").append(exportDir).append(",");
+            stringBuilder.append("exportDir = ").append(exportDir).append("; ");
         }
         if (filetype != null) {
             stringBuilder.append("filetype = ").append(filetype).append("; ");
@@ -346,7 +400,8 @@ public final class Arguments {
         }
         
         int length = stringBuilder.length();
-        if (stringBuilder.lastIndexOf("; ") == length - "; ".length()) {
+        if (stringBuilder.lastIndexOf("; ") > 0 &&
+                stringBuilder.lastIndexOf("; ") == length - "; ".length()) {
             stringBuilder.delete(length - 1, length);
         }
         
