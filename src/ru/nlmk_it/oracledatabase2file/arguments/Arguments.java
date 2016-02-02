@@ -38,49 +38,50 @@ public final class Arguments {
             help=true)
     private boolean help;
     
-    @Parameter(names = {"-filetype", "-type", "-t"},
+    @Parameter(names = {"-export.filetype"},
             description = "The format of the export file",
             required = true,
             converter = FiletypeEnumConverter.class)
     private FiletypeEnum filetype;
     
-    @Parameter(names = {"-script", "-s"},
+    @Parameter(names = {"-script"},
             description = "The file that contains the SQL queries",
             required = true,
             converter = SQLScriptConverter.class)
     private SQLScript sqlScript;
     
-    @Parameter(names = {"-exportdir", "-dir", "-d"},
+    @Parameter(names = {"-export.directory"},
             description = "The path to the directory where will be the export file",
             required = false,
             converter = DirectoryConverter.class)
     private Path exportDir;
     
-    @Parameter(names = {"-url", "-u"},
+    @Parameter(names = {"-url"},
             description = "Database URL",
             required = false)
     private String url;
     
-    @Parameter(names = {"-login", "-l"},
+    @Parameter(names = {"-login"},
             description = "User login for database connection",
             required = false)
     private String login;
     
-    @Parameter(names = {"-password", "-p"},
+    @Parameter(names = {"-password"},
             description = "User password for database connection",
             password = true,
             echoInput = true,
             required = false)
     private String passrowd;
     
-    @Parameter(names = {"-sql.variableMarker", "-sql.vm"},
+    @Parameter(names = {"-sql.variableMarker"},
             description = "Variable marker for SQL expression",
             required = false)
     private String sqlVariableMarker;
     
-    @Parameter(names = {"-sql.dateFormat", "-sql.df"},
-            description = "The format of date type",
-            required = false)
+    @Parameter(names = {"-sql.dateFormat"},
+            description = "The format of date type for SQL",
+            required = false,
+            converter = DateFormatConverter.class)
     private DateFormat sqlDateFormat;
     
     @DynamicParameter(names = "-P",
@@ -88,17 +89,23 @@ public final class Arguments {
             required = false)
     private Map<String, String> sqlParams = new HashMap<>();
     
-    @Parameter(names = {"-filename", "-name", "n"},
+    @Parameter(names = {"-export.filename"},
             description = "The name of the export file(s)",
             required = false)
     private String exportFilename;
     
-    private static final int DEFAULT_XLSX_ROWS_IN_THE_BATCH = 1000;
+    private static final int DEFAULT_XLSX_ROWS_BEFORE_FLUSH = 1000;
     
-    @Parameter(names = {"-xlsx.rowsInTheBatch"},
-            description = "The number of saved rows in the batch",
+    @Parameter(names = {"-xlsx.rowsBeforeFlush"},
+            description = "The number of saved rows before flushing",
             required = false)
-    private int xlsxRowsInTheBatch = DEFAULT_XLSX_ROWS_IN_THE_BATCH;
+    private int xlsxRowsBeforeFlush = DEFAULT_XLSX_ROWS_BEFORE_FLUSH;
+    
+    @Parameter(names = {"-export.dateFormat"},
+            description = "The format of date type for XLSX",
+            required = false,
+            converter = DateFormatConverter.class)
+    private DateFormat exportDateFormat;
     
     /**
      * Creates new {@code Arguments} instance with empty parameters.
@@ -147,16 +154,21 @@ public final class Arguments {
             this.sqlDateFormat = new SimpleDateFormat(property);
         }
         
-        property = properties.getProperty("exportDirectory");
+        property = properties.getProperty("export.directory");
         if (property != null && this.exportDir == null) {
             this.exportDir = new DirectoryConverter().convert(property);
         }
         
-        property = properties.getProperty("xlsx.rowsInTheBatch");
+        property = properties.getProperty("xlsx.rowsBeforeFlush");
         if (property != null 
-                && (this.xlsxRowsInTheBatch <= 0 
-                || Integer.parseInt(property) != DEFAULT_XLSX_ROWS_IN_THE_BATCH)) {
-            this.xlsxRowsInTheBatch = Integer.parseInt(property);
+                && (this.xlsxRowsBeforeFlush <= 0 
+                || Integer.parseInt(property) != DEFAULT_XLSX_ROWS_BEFORE_FLUSH)) {
+            this.xlsxRowsBeforeFlush = Integer.parseInt(property);
+        }
+        
+        property = properties.getProperty("export.dateFormat");
+        if (property != null && this.exportDateFormat == null) {
+            this.exportDateFormat = new SimpleDateFormat(property);
         }
     }
     
@@ -305,12 +317,25 @@ public final class Arguments {
         return exportFilename;
     }
     
+    /**
+     * 
+     * @return 
+     */
     public int getXlsxRowsInTheBatch() {
         LOGGER.trace("The method getXlsxRowsInTheBatch() was invoked.");
-        LOGGER.trace("getXlsxRowsInTheBatch() was returned => " + xlsxRowsInTheBatch);
-        return xlsxRowsInTheBatch;
+        LOGGER.trace("getXlsxRowsInTheBatch() was returned => " + xlsxRowsBeforeFlush);
+        return xlsxRowsBeforeFlush;
     }
     
+    /**
+     * 
+     * @return 
+     */
+    public DateFormat getExportDateFormat() {
+        LOGGER.trace("The method getExportDateFormat() was invoked.");
+        LOGGER.trace("getExportDateFormat() was returned => " + exportDateFormat);
+        return exportDateFormat;
+    }
     
     /**
      * 
@@ -348,29 +373,39 @@ public final class Arguments {
         LOGGER.trace("The method validate() was invoked.");
         
         if (exportDir == null) {
-            throw new ParameterException("The following option is required: { -exportdir | -dir | -d } <directory>");
+            throw new ParameterException("The following option is required:"
+                    + " { -export.directory } <directory>");
         }
         if (filetype == null) {
-            throw new ParameterException("The following option is required: { -filetype | -type | -t } <type>");
+            throw new ParameterException("The following option is required:"
+                    + " { -export.filetype } <type>");
         }
         if (sqlScript == null) {
-            throw new ParameterException("The following option is required: { -script | -s }");
+            throw new ParameterException("The following option is required:"
+                    + " { -script }");
         }
         if (url == null) {
-            throw new ParameterException("The following option is required: { -url | -u }");
+            throw new ParameterException("The following option is required:"
+                    + " { -url }");
         }
         if (login == null) {
-            throw new ParameterException("The following option is required: { -login | -l }");
+            throw new ParameterException("The following option is required:"
+                    + " { -login }");
         }
         if (passrowd == null) {
-            throw new ParameterException("The following option is required: { -password | -p }");
+            throw new ParameterException("The following option is required:"
+                    + " { -password }");
         }
         if (exportFilename == null) {
             exportFilename = defaultExportFilename();
         }
-        if (xlsxRowsInTheBatch <= 0) {
-            throw new ParameterException("Incorrect value for parameter xlsx.rowsInTheBatch : "
-                    + xlsxRowsInTheBatch);
+        if (xlsxRowsBeforeFlush <= 0) {
+            throw new ParameterException("Incorrect value for parameter"
+                    + " xlsx.rowsBeforeFlush: " + xlsxRowsBeforeFlush);
+        }
+        if (exportDateFormat == null) {
+            throw new ParameterException("The following option is required:"
+                    + " { export.dateFormat } <format>");
         }
     }
     
@@ -381,13 +416,13 @@ public final class Arguments {
         StringBuilder stringBuilder = new StringBuilder("[");
         
         if (exportDir != null) {
-            stringBuilder.append("exportDir = ").append(exportDir).append("; ");
+            stringBuilder.append("export.directory = ").append(exportDir).append("; ");
         }
         if (filetype != null) {
-            stringBuilder.append("filetype = ").append(filetype).append("; ");
+            stringBuilder.append("export.filetype = ").append(filetype).append("; ");
         }
         if (sqlScript != null) {
-            stringBuilder.append("sqlSqript = ").append(sqlScript).append("; ");
+            stringBuilder.append("sqript = ").append(sqlScript).append("; ");
         }
         if (url != null) {
             stringBuilder.append("url = ").append(url).append("; ");

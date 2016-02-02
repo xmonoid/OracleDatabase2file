@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
  * The class-converter for directory input.
  * @author Косых Евгений
  */
-public class DirectoryConverter implements IStringConverter<Path> {
+public final class DirectoryConverter implements IStringConverter<Path> {
     
     private static final Logger LOGGER = LogManager.getLogger(DirectoryConverter.class);
     

@@ -1,9 +1,11 @@
 package ru.nlmk_it.oracledatabase2file.exporters;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,17 +26,28 @@ public abstract class Exporter {
     
     protected final Path exportPath;
     
+    protected final String extension;
+    
+    protected final DateFormat exportDateFormat;
+    
     /**
      * 
      * @param exportFilename 
      * @param exportPath 
+     * @param extension 
+     * @param exportDateFormat 
      */
-    protected Exporter(String exportFilename, Path exportPath) {
+    protected Exporter(String exportFilename,
+            Path exportPath,
+            String extension,
+            DateFormat exportDateFormat) {
         LOGGER.trace("The object of Exporter class was created:\n"
                 + "\tFile exportFile <= " + substring(exportFilename));
         this.actualExportFilename = 
                 this.exportFilenameTemplate = exportFilename;
         this.exportPath = exportPath;
+        this.extension = extension;
+        this.exportDateFormat = exportDateFormat;
     }
     
     /**
@@ -52,16 +65,22 @@ public abstract class Exporter {
         switch (filetype) {
             case XLSX:
                 result = new XLSXExporter(arguments.getExportFilename(),
-                        arguments.getExportDir(), 
+                        arguments.getExportDir(),
+                        filetype.toString().toLowerCase(),
+                        arguments.getExportDateFormat(),
                         arguments.getXlsxRowsInTheBatch());
                 break;
             case DBF:
                 result = new DBFExporter(arguments.getExportFilename(),
-                        arguments.getExportDir());
+                        arguments.getExportDir(),
+                        filetype.toString().toLowerCase(),
+                        arguments.getExportDateFormat());
                 break;
             case CSV:
                 result = new CSVExporter(arguments.getExportFilename(),
-                        arguments.getExportDir());
+                        arguments.getExportDir(),
+                        filetype.toString().toLowerCase(),
+                        arguments.getExportDateFormat());
                 break;
             default:
                 throw new RuntimeException("Unsupported filetype");
@@ -94,6 +113,21 @@ public abstract class Exporter {
         String result = getClass().getName() + "[" + exportFilenameTemplate + "]";
         
         LOGGER.trace("toString() returned => " + result);
+        return result;
+    }
+    
+    /**
+     * 
+     * @return
+     * @throws IOException 
+     */
+    protected File createNewExportFile() throws IOException {
+        LOGGER.trace("The method createNewExportFile() was invoked.");
+        actualExportFilename = exportFilenameTemplate + "." + extension;
+        
+        File result = new File(exportPath.toString() + File.separator + actualExportFilename);
+        
+        LOGGER.trace("createNewExportFile() returned => " + result.getCanonicalPath());
         return result;
     }
 }

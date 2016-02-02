@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +22,11 @@ final class CSVExporter extends Exporter {
     
     private static final Logger LOGGER = LogManager.getLogger(CSVExporter.class);
     
-    protected CSVExporter(String exportFilename, Path exportPath) {
-        super(exportFilename, exportPath);
+    protected CSVExporter(String exportFilename,
+            Path exportPath,
+            String extension,
+            DateFormat exportDateFormat) {
+        super(exportFilename, exportPath, extension, exportDateFormat);
         LOGGER.trace("The object of CSVExporter class was created.");
     }
 

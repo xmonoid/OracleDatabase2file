@@ -5,16 +5,18 @@
  */
 package ru.nlmk_it.oracledatabase2file.exporters;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,9 +49,14 @@ final class XLSXExporter extends Exporter {
     private CellStyle dateCellStyle;
     
     /**
-     * The counter of rows.
+     * The counter of rows in the sheet.
      */
-    private int currentRow = 0;
+    private int currentRowInTheSheet = 0;
+    
+    /**
+     * The counter of rows in the file.
+     */
+    private BigInteger allRowsInTheFile = BigInteger.ZERO;
     
     /**
      * The number of columns in the sheet.
@@ -72,8 +79,10 @@ final class XLSXExporter extends Exporter {
      */
     protected XLSXExporter(String exportFilename,
             Path exportPath,
+            String extension,
+            DateFormat dateFormat,
             int xlsxRowsInTheBatch) {
-        super(exportFilename, exportPath);
+        super(exportFilename, exportPath, extension, dateFormat);
         this.xlsxRowsInTheBatch = xlsxRowsInTheBatch;
         LOGGER.trace("The object of XLSXExporter class was created.");
     }
@@ -89,7 +98,7 @@ final class XLSXExporter extends Exporter {
                 + "\tResultSet resultSet <= " + resultSet);
 
         Sheet sheet = workbook.createSheet();
-        Row row = sheet.createRow(currentRow++);
+        Row row = sheet.createRow(currentRowInTheSheet++);
         ResultSetMetaData rsMetaData = resultSet.getMetaData();
         numberOfColumns = rsMetaData.getColumnCount();
 
@@ -118,14 +127,22 @@ final class XLSXExporter extends Exporter {
      * @param buffer
      * @throws SQLException
      */
-    private void putRows(ResultSet resultSet, Sheet sheet) throws SQLException {
+    private int putRows(ResultSet resultSet,
+            Sheet sheet,
+            int startRowNumber) throws SQLException {
         LOGGER.trace("The method putRows() was invoked:\n"
                 + "\tResultSet resultSet <= " + resultSet + "\n"
                 + "\tSheet sheet <= " + sheet);
         
         int index = 0;
         while (resultSet.next()) {
-            Row row = sheet.createRow(currentRow++);
+            
+            if (startRowNumber > MAX_NUMBER_OF_ROWS) {
+                LOGGER.debug("The maximum number of rows in the sheet was reached.");
+                break;
+            }
+            
+            Row row = sheet.createRow(startRowNumber++);
             
             for(int cellnum = 0; cellnum < numberOfColumns; cellnum++) {
                 putCell(row.createCell(cellnum), resultSet.getObject(cellnum + 1));
@@ -138,7 +155,10 @@ final class XLSXExporter extends Exporter {
             }
         }
         
-        LOGGER.debug(index + " rows with data added into the file '" + actualExportFilename + "'");
+        LOGGER.debug(index + " rows with data added into the file '"
+                + actualExportFilename + "'");
+        LOGGER.trace("putRows() returned => " + startRowNumber);
+        return startRowNumber;
     }
     
     /**
@@ -184,25 +204,42 @@ final class XLSXExporter extends Exporter {
         LOGGER.trace("The method export() was invoked:\n"
                 + "\tSet<ResultSet> resultSets <= " + resultSets);
         
-        actualExportFilename = exportFilenameTemplate + ".xlsx";
-        File file = new File(exportPath.toString() + File.separator + actualExportFilename);
-        try (OutputStream out = new FileOutputStream(file)) {
-            currentRow = 0;
+        try (OutputStream out = new FileOutputStream(createNewExportFile())) {
             
             workbook = new SXSSFWorkbook(xlsxRowsInTheBatch);
             workbook.setCompressTempFiles(true);
             dateCellStyle = workbook.createCellStyle();
-            dateCellStyle.setDataFormat(workbook.createDataFormat().getFormat("dd.mm.yyyy"));
+            dateCellStyle.setDataFormat(
+                    workbook.createDataFormat().getFormat(
+                            ((SimpleDateFormat) exportDateFormat).toPattern()));
             for (ResultSet resultSet: resultSets) {
                 
-                Sheet sheet = setFields(resultSet);
-                putRows(resultSet, sheet);
+                // If the number of rows is more than 2^20-1,
+                // the new sheet will be created.
+                do {
+                    currentRowInTheSheet = 0;
+                    
+                    Sheet sheet = setFields(resultSet);
+                    
+                    LOGGER.debug("New sheet was created: " + sheet.getSheetName());
+                    
+                    currentRowInTheSheet = putRows(resultSet, sheet, currentRowInTheSheet);
+                    
+                    LOGGER.info(currentRowInTheSheet
+                            + " rows added into the sheet " + sheet.getSheetName());
+                    allRowsInTheFile = allRowsInTheFile.add(
+                            BigInteger.valueOf(currentRowInTheSheet));
+                }
+                while (!resultSet.isAfterLast());
 
             }
             
-            LOGGER.info(currentRow + " rows in total added into the file '"
+            LOGGER.info(allRowsInTheFile.toString()
+                    + " rows in total added into the file '"
                     + actualExportFilename + "'");
+            LOGGER.info("Starting the compressing...");
             workbook.write(out);
+            LOGGER.info("Done.");
         }
         finally {
             if (workbook != null) {
