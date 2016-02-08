@@ -74,7 +74,8 @@ public abstract class Exporter {
                 result = new DBFExporter(arguments.getExportFilename(),
                         arguments.getExportDir(),
                         filetype.toString().toLowerCase(),
-                        arguments.getExportDateFormat());
+                        arguments.getExportDateFormat(),
+                        arguments.getDbfCharsetEncoding());
                 break;
             case CSV:
                 result = new CSVExporter(arguments.getExportFilename(),

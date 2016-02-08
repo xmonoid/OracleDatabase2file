@@ -107,6 +107,11 @@ public final class Arguments {
             converter = DateFormatConverter.class)
     private DateFormat exportDateFormat;
     
+    @Parameter(names = {"-dbf.charsetEncoding"},
+            description = "",
+            required = false)
+    private String dbfCharsetEncoding;
+    
     /**
      * Creates new {@code Arguments} instance with empty parameters.
      */
@@ -126,49 +131,55 @@ public final class Arguments {
                 + "\tFile propertyFile <= " + propertyFile.getAbsolutePath());
         
         Properties properties = new Properties();
-        InputStream in = new FileInputStream(propertyFile.getAbsolutePath());
-        properties.load(in);
-        
-        String property = properties.getProperty("url");
-        if (property != null && this.url == null) {
-            this.url = property;
-        }
-        
-        property = properties.getProperty("login");
-        if (property != null && this.login == null) {
-            this.login = property;
-        }
-        
-        property = properties.getProperty("password");
-        if (property != null && this.passrowd == null) {
-            this.passrowd = property;
-        }
-        
-        property = properties.getProperty("sql.variableMarker");
-        if (property != null && this.sqlVariableMarker == null) {
-            this.sqlVariableMarker = property;
-        }
-        
-        property = properties.getProperty("sql.dateFormat");
-        if (property != null && this.sqlDateFormat == null) {
-            this.sqlDateFormat = new SimpleDateFormat(property);
-        }
-        
-        property = properties.getProperty("export.directory");
-        if (property != null && this.exportDir == null) {
-            this.exportDir = new DirectoryConverter().convert(property);
-        }
-        
-        property = properties.getProperty("xlsx.rowsBeforeFlush");
-        if (property != null 
-                && (this.xlsxRowsBeforeFlush <= 0 
-                || Integer.parseInt(property) != DEFAULT_XLSX_ROWS_BEFORE_FLUSH)) {
-            this.xlsxRowsBeforeFlush = Integer.parseInt(property);
-        }
-        
-        property = properties.getProperty("export.dateFormat");
-        if (property != null && this.exportDateFormat == null) {
-            this.exportDateFormat = new SimpleDateFormat(property);
+        try (InputStream in = new FileInputStream(propertyFile.getAbsolutePath())) {
+            properties.load(in);
+            
+            String property = properties.getProperty("url");
+            if (property != null && this.url == null) {
+                this.url = property;
+            }
+            
+            property = properties.getProperty("login");
+            if (property != null && this.login == null) {
+                this.login = property;
+            }
+            
+            property = properties.getProperty("password");
+            if (property != null && this.passrowd == null) {
+                this.passrowd = property;
+            }
+            
+            property = properties.getProperty("sql.variableMarker");
+            if (property != null && this.sqlVariableMarker == null) {
+                this.sqlVariableMarker = property;
+            }
+            
+            property = properties.getProperty("sql.dateFormat");
+            if (property != null && this.sqlDateFormat == null) {
+                this.sqlDateFormat = new SimpleDateFormat(property);
+            }
+            
+            property = properties.getProperty("export.directory");
+            if (property != null && this.exportDir == null) {
+                this.exportDir = new DirectoryConverter().convert(property);
+            }
+            
+            property = properties.getProperty("xlsx.rowsBeforeFlush");
+            if (property != null
+                    && (this.xlsxRowsBeforeFlush <= 0
+                    || Integer.parseInt(property) != DEFAULT_XLSX_ROWS_BEFORE_FLUSH)) {
+                this.xlsxRowsBeforeFlush = Integer.parseInt(property);
+            }
+            
+            property = properties.getProperty("export.dateFormat");
+            if (property != null && this.exportDateFormat == null) {
+                this.exportDateFormat = new SimpleDateFormat(property);
+            }
+            
+            property = properties.getProperty("dbf.charsetEncoding");
+            if (property != null && dbfCharsetEncoding == null) {
+                this.dbfCharsetEncoding = property;
+            }
         }
     }
     
@@ -341,6 +352,16 @@ public final class Arguments {
      * 
      * @return 
      */
+    public String getDbfCharsetEncoding() {
+        LOGGER.trace("The method getDbfCharsetEncoding() was invoked.");
+        LOGGER.trace("getDbfCharsetEncoding() was returned => " + dbfCharsetEncoding);
+        return dbfCharsetEncoding;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
     private String defaultExportFilename() {
         LOGGER.trace("The method setDefaultExportFilename() was invoked.");
         
@@ -356,7 +377,7 @@ public final class Arguments {
         }
         
         defaultFilename.append("_").append(
-                new SimpleDateFormat("dd.MM.yyyy HH.mm.ss").format(
+                new SimpleDateFormat("dd.MM.yyyy_HH.mm.ss").format(
                         new java.util.Date()));
         
         String result = defaultFilename.toString();

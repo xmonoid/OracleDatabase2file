@@ -2,16 +2,26 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5level] - %msg%n" />
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss.SSS} [%-5level] - %msg%n</Pattern>
+            </PatternLayout>
         </Console>
-        <File name="MyFile" fileName="logs/output.log" immediateFlush="true">
-            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%-5level] %logger{36}:%L - %msg%n"/>
-        </File>
+        <RollingFile name="RFile" fileName="logs/output.log" append="false" 
+                     filePattern="logs/output.log.backup">
+            <PatternLayout>
+                <Pattern>%d{yyy-MM-dd HH:mm:ss.SSS} [%-5level] %logger{36}:%L - %msg%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <!--<TimeBasedTriggeringPolicy />-->
+            </Policies>
+            <DefaultRolloverStrategy max="200"/>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Root level="DEBUG">
             <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="RFile"/>
         </Root>
     </Loggers>
 </Configuration>

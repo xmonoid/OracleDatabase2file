@@ -226,7 +226,7 @@ final class XLSXExporter extends Exporter {
                     currentRowInTheSheet = putRows(resultSet, sheet, currentRowInTheSheet);
                     
                     LOGGER.info(currentRowInTheSheet
-                            + " rows added into the sheet " + sheet.getSheetName());
+                            + " rows were added into the sheet " + sheet.getSheetName());
                     allRowsInTheFile = allRowsInTheFile.add(
                             BigInteger.valueOf(currentRowInTheSheet));
                 }
@@ -235,7 +235,7 @@ final class XLSXExporter extends Exporter {
             }
             
             LOGGER.info(allRowsInTheFile.toString()
-                    + " rows in total added into the file '"
+                    + " rows in total were added into the file '"
                     + actualExportFilename + "'");
             LOGGER.info("Starting the compressing...");
             workbook.write(out);
