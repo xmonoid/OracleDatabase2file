@@ -94,23 +94,43 @@ public final class Arguments {
             required = false)
     private String exportFilename;
     
-    private static final int DEFAULT_XLSX_ROWS_BEFORE_FLUSH = 1000;
+    private static final int DEFAULT_ROWS_BEFORE_FLUSH = 1000;
     
     @Parameter(names = {"-xlsx.rowsBeforeFlush"},
-            description = "The number of saved rows before flushing",
+            description = "The number of saved rows before flushing (XLSX)",
             required = false)
-    private int xlsxRowsBeforeFlush = DEFAULT_XLSX_ROWS_BEFORE_FLUSH;
+    private int xlsxRowsBeforeFlush = DEFAULT_ROWS_BEFORE_FLUSH;
     
     @Parameter(names = {"-export.dateFormat"},
-            description = "The format of date type for XLSX",
+            description = "The format of date type in the export file",
             required = false,
             converter = DateFormatConverter.class)
     private DateFormat exportDateFormat;
     
     @Parameter(names = {"-dbf.charsetEncoding"},
-            description = "",
+            description = "String encoding code (DBF)",
             required = false)
     private String dbfCharsetEncoding;
+    
+    @Parameter(names = {"-csv.charsetEncoding"},
+            description = "String encoding code (CSV)",
+            required = false)
+    private String csvCharsetEncoding;
+    
+    @Parameter(names = {"-csv.rowSeparator"},
+            description = "The separator of rows (CSV)",
+            required = false)
+    private String csvRowSeparator;
+    
+    @Parameter(names = {"-csv.cellSeparator"},
+            description = "The separator of cells (CSV)",
+            required = false)
+    private String csvCellSeparator;
+    
+    @Parameter(names = {"-csv.rowsBeforeFlush"},
+            description = "The number of saved rows before flushing (CSV)",
+            required = false)
+    private int csvRowsBeforeFlush;
     
     /**
      * Creates new {@code Arguments} instance with empty parameters.
@@ -167,7 +187,7 @@ public final class Arguments {
             property = properties.getProperty("xlsx.rowsBeforeFlush");
             if (property != null
                     && (this.xlsxRowsBeforeFlush <= 0
-                    || Integer.parseInt(property) != DEFAULT_XLSX_ROWS_BEFORE_FLUSH)) {
+                    || Integer.parseInt(property) != DEFAULT_ROWS_BEFORE_FLUSH)) {
                 this.xlsxRowsBeforeFlush = Integer.parseInt(property);
             }
             
@@ -179,6 +199,28 @@ public final class Arguments {
             property = properties.getProperty("dbf.charsetEncoding");
             if (property != null && dbfCharsetEncoding == null) {
                 this.dbfCharsetEncoding = property;
+            }
+            
+            property = properties.getProperty("csv.charsetEncoding");
+            if (property != null && getCsvCharsetEncoding() == null) {
+                this.csvCharsetEncoding = property;
+            }
+            
+            property = properties.getProperty("csv.rowSeparator");
+            if (property != null && getCsvRowSeparator() == null) {
+                this.csvRowSeparator = property;
+            }
+            
+            property = properties.getProperty("csv.cellSeparator");
+            if (property != null && getCsvCellSeparator() == null) {
+                this.csvCellSeparator = property;
+            }
+            
+            property = properties.getProperty("csv.rowsBeforeFlush");
+            if (property != null
+                    && (this.getCsvRowsBeforeFlush() <= 0
+                    || Integer.parseInt(property) != DEFAULT_ROWS_BEFORE_FLUSH)) {
+                this.csvRowsBeforeFlush = Integer.parseInt(property);
             }
         }
     }
@@ -332,7 +374,7 @@ public final class Arguments {
      * 
      * @return 
      */
-    public int getXlsxRowsInTheBatch() {
+    public int getXlsxRowsBeforeFlush() {
         LOGGER.trace("The method getXlsxRowsInTheBatch() was invoked.");
         LOGGER.trace("getXlsxRowsInTheBatch() was returned => " + xlsxRowsBeforeFlush);
         return xlsxRowsBeforeFlush;
@@ -356,6 +398,43 @@ public final class Arguments {
         LOGGER.trace("The method getDbfCharsetEncoding() was invoked.");
         LOGGER.trace("getDbfCharsetEncoding() was returned => " + dbfCharsetEncoding);
         return dbfCharsetEncoding;
+    }
+    
+    
+    /**
+     * @return the csvCharsetEncoding
+     */
+    public String getCsvCharsetEncoding() {
+        LOGGER.trace("The method getCsvCharsetEncoding() was invoked.");
+        LOGGER.trace("getCsvCharsetEncoding() was returned => " + csvCharsetEncoding);
+        return csvCharsetEncoding;
+    }
+
+    /**
+     * @return the csvRowSeparator
+     */
+    public String getCsvRowSeparator() {
+        LOGGER.trace("The method getCsvRowSeparator() was invoked.");
+        LOGGER.trace("getCsvRowSeparator() was returned => " + csvRowSeparator);
+        return csvRowSeparator;
+    }
+
+    /**
+     * @return the csvCellSeparator
+     */
+    public String getCsvCellSeparator() {
+        LOGGER.trace("The method getCsvCellSeparator() was invoked.");
+        LOGGER.trace("getCsvCellSeparator() was returned => " + csvCellSeparator);
+        return csvCellSeparator;
+    }
+
+    /**
+     * @return the csvRowsBeforeFlush
+     */
+    public int getCsvRowsBeforeFlush() {
+        LOGGER.trace("The method getCsvRowsBeforeFlush() was invoked.");
+        LOGGER.trace("getCsvRowsBeforeFlush() was returned => " + csvRowsBeforeFlush);
+        return csvRowsBeforeFlush;
     }
     
     /**

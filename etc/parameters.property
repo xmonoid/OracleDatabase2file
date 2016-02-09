@@ -11,3 +11,8 @@ export.dateFormat   : dd.MM.yyyy
 xlsx.rowsBeforeFlush    : 25000
 
 dbf.charsetEncoding     : Cp866
+
+csv.charsetEncoding     : Cp1251
+csv.rowSeparator        : \n
+csv.cellSeparator       : \t
+csv.rowsBeforeFlush     : 25000

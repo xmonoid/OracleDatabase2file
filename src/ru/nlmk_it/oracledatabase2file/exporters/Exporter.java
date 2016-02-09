@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
 import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
+import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
  *
@@ -68,20 +69,27 @@ public abstract class Exporter {
                         arguments.getExportDir(),
                         filetype.toString().toLowerCase(),
                         arguments.getExportDateFormat(),
-                        arguments.getXlsxRowsInTheBatch());
+                        arguments.getXlsxRowsBeforeFlush()
+                );
                 break;
             case DBF:
                 result = new DBFExporter(arguments.getExportFilename(),
                         arguments.getExportDir(),
                         filetype.toString().toLowerCase(),
                         arguments.getExportDateFormat(),
-                        arguments.getDbfCharsetEncoding());
+                        arguments.getDbfCharsetEncoding()
+                );
                 break;
             case CSV:
                 result = new CSVExporter(arguments.getExportFilename(),
                         arguments.getExportDir(),
                         filetype.toString().toLowerCase(),
-                        arguments.getExportDateFormat());
+                        arguments.getExportDateFormat(),
+                        arguments.getCsvCharsetEncoding(),
+                        arguments.getCsvCellSeparator(),
+                        arguments.getCsvRowSeparator(),
+                        arguments.getCsvRowsBeforeFlush()
+                );
                 break;
             default:
                 throw new RuntimeException("Unsupported filetype");

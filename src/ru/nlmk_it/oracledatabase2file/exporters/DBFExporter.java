@@ -247,7 +247,7 @@ final class DBFExporter extends Exporter {
             count++;
             
             if (count % 25_000 == 0) {
-                LOGGER.info(count + " rows were added in the file " + actualExportFilename);
+                LOGGER.info(count + " rows were added into the file " + actualExportFilename);
             }
         }
         
