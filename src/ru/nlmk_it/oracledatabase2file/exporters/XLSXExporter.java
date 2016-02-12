@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -36,7 +35,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  */
 final class XLSXExporter extends Exporter {
     
-    private static final Logger LOGGER = LogManager.getLogger(XLSXExporter.class);
+    private static final Logger LOGGER = Logger.getLogger(XLSXExporter.class);
     
     /**
      * The workbook - the main class defining an export file.

@@ -18,8 +18,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -27,7 +26,7 @@ import org.apache.logging.log4j.Logger;
  */
 final class CSVExporter extends Exporter {
     
-    private static final Logger LOGGER = LogManager.getLogger(CSVExporter.class);
+    private static final Logger LOGGER = Logger.getLogger(CSVExporter.class);
     
     private final String cellSeparator;
     

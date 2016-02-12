@@ -9,8 +9,7 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -18,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  */
 public final class DateFormatConverter implements IStringConverter<DateFormat> {
     
-    private static final Logger LOGGER = LogManager.getLogger(DateFormatConverter.class);
+    private static final Logger LOGGER = Logger.getLogger(DateFormatConverter.class);
 
     @Override
     public DateFormat convert(String value) {

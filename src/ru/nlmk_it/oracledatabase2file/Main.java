@@ -1,21 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ru.nlmk_it.oracledatabase2file;
 
 import com.beust.jcommander.JCommander;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collection;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.log4j.Logger;
 import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
+import ru.nlmk_it.oracledatabase2file.logutils.NewLogForEachRunFileAppender;
 
 /**
  *
@@ -23,15 +15,16 @@ import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
  */
 public final class Main {
     
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = Logger.getLogger(Main.class);
     
     /**
      * 
      * @param args Command-line arguments
+     * @throws java.lang.Exception
      */
-    public static void main(String[] args) {
-        reconfigurationLog4j2();
-        LOGGER.info("The program started with arguments: {}", Arrays.toString(args));
+    public static void main(String[] args) throws Exception {
+        renameLogFile(args);
+        LOGGER.info("The program started with arguments: " + Arrays.toString(args));
         
         try {
             Arguments arguments = new Arguments();
@@ -66,25 +59,25 @@ public final class Main {
     
     /**
      * 
+     * @param newName
      */
-    private static void reconfigurationLog4j2() {
+    private synchronized static void renameLogFile(String[] args) {
         
-        /*
-        Цель: нужно, чтобы приложение создавало новый файл лога каждый запуск.
+        String newName = null;
         
-        Ситауация: Log4j2 создаёт новый файл либо в соответствии со временем,
-        либо при достижении заданного размера. Опция для создания нового файла
-        при запуске в конфигурационном файле есть, но она не работает.
+        try {
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].equalsIgnoreCase("-script")) {
+                    File f = new File(args[i + 1]);
+                    newName = f.getName().substring(0, f.getName().lastIndexOf(".")) + ".log";
+                }
+            }
+        } 
+        catch (RuntimeException e) { /*NOP*/ }
         
-        При запуске нового приложения нужно текущий файл логов переименовать,
-        добавив к нему временной штамп. А также было бы неплохо и переименовать
-        на основе заданного SQL сценария.
-        */
+        final Logger logger = Logger.getLogger("ru.nlmk_it.oracledatabase2file");
+        final NewLogForEachRunFileAppender appender = (NewLogForEachRunFileAppender) logger.getAppender("MAIN");
         
-        LoggerContext context = (LoggerContext) LogManager.getContext(false);
-        
-        Collection<org.apache.logging.log4j.core.Logger> loggers = context.getLoggers();
-        
-        
+        appender.renameFile(newName);
     }
 }

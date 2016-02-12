@@ -23,8 +23,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -32,7 +31,7 @@ import org.apache.logging.log4j.Logger;
  */
 final class DBFExporter extends Exporter {
     
-    private static final Logger LOGGER = LogManager.getLogger(DBFExporter.class);
+    private static final Logger LOGGER = Logger.getLogger(DBFExporter.class);
     
     /**
      * Кодировка для текста в DBF файле.

@@ -19,8 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import ru.nlmk_it.oracledatabase2file.database.SQLScript;
 
 /**
@@ -31,7 +30,7 @@ import ru.nlmk_it.oracledatabase2file.database.SQLScript;
  */
 public final class Arguments {
     
-    private static final Logger LOGGER = LogManager.getLogger(Arguments.class);
+    private static final Logger LOGGER = Logger.getLogger(Arguments.class);
     
     @Parameter(names = {"-help", "-h"},
             description = "Print this help and exit",

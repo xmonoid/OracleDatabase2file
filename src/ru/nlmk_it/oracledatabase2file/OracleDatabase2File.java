@@ -14,8 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
 import ru.nlmk_it.oracledatabase2file.database.SQLExpression;
 import ru.nlmk_it.oracledatabase2file.database.SQLScript;
@@ -29,7 +28,7 @@ import ru.nlmk_it.oracledatabase2file.exporters.Exporter;
  */
 public final class OracleDatabase2File implements AutoCloseable {
     
-    private static final Logger LOGGER = LogManager.getLogger(OracleDatabase2File.class);
+    private static final Logger LOGGER = Logger.getLogger(OracleDatabase2File.class);
     
     private final Connection connection;
     

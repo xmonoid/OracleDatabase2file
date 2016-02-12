@@ -8,8 +8,7 @@ package ru.nlmk_it.oracledatabase2file.arguments;
 import ru.nlmk_it.oracledatabase2file.exporters.FiletypeEnum;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * The class-converter for filetype input.
@@ -17,7 +16,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class FiletypeEnumConverter implements IStringConverter<FiletypeEnum> {
     
-    private static final Logger LOGGER = LogManager.getLogger(FiletypeEnumConverter.class);
+    private static final Logger LOGGER = Logger.getLogger(FiletypeEnumConverter.class);
     
     @Override
     public FiletypeEnum convert(String value) {

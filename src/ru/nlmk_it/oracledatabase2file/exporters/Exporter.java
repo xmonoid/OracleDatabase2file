@@ -7,10 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import ru.nlmk_it.oracledatabase2file.arguments.Arguments;
-import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
@@ -19,7 +17,7 @@ import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
  */
 public abstract class Exporter {
     
-    private static final Logger LOGGER = LogManager.getLogger(Exporter.class);
+    private static final Logger LOGGER = Logger.getLogger(Exporter.class);
     
     protected final String exportFilenameTemplate;
     

@@ -7,8 +7,7 @@ package ru.nlmk_it.oracledatabase2file.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
@@ -17,7 +16,7 @@ import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
  */
 public final class Select extends DMLExpression {
     
-    private static final Logger LOGGER = LogManager.getLogger(Select.class);
+    private static final Logger LOGGER = Logger.getLogger(Select.class);
 
     public Select(String expression) {
         super(expression);

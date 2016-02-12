@@ -8,8 +8,7 @@ package ru.nlmk_it.oracledatabase2file.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 import oracle.jdbc.OracleCallableStatement;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
 
 /**
@@ -18,7 +17,7 @@ import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.substring;
  */
 public abstract class CallableExpression extends SQLExpression {
     
-    private static final Logger LOGGER = LogManager.getLogger(CallableExpression.class);
+    private static final Logger LOGGER = Logger.getLogger(CallableExpression.class);
     
     protected final String callableExpression;
     

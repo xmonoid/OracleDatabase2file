@@ -13,8 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.*;
 
 /**
@@ -23,7 +22,7 @@ import static ru.nlmk_it.oracledatabase2file.logutils.LogUtils.*;
  */
 public class SQLScript {
     
-    private static final Logger LOGGER = LogManager.getLogger(SQLScript.class);
+    private static final Logger LOGGER = Logger.getLogger(SQLScript.class);
     
     /**
      * The name of the SQL script file. Maybe need to export file.

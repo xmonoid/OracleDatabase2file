@@ -10,8 +10,7 @@ import com.beust.jcommander.ParameterException;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import ru.nlmk_it.oracledatabase2file.database.SQLScript;
 
 /**
@@ -20,7 +19,7 @@ import ru.nlmk_it.oracledatabase2file.database.SQLScript;
  */
 public final class SQLScriptConverter implements IStringConverter<SQLScript> {
     
-    private static final Logger LOGGER = LogManager.getLogger(SQLScriptConverter.class);
+    private static final Logger LOGGER = Logger.getLogger(SQLScriptConverter.class);
     
     @Override
     public SQLScript convert(String value) {
