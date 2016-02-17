@@ -17,7 +17,7 @@ public class MainTest {
      * Test of main method, of class Main.
      */
     @Test
-    public void testMain() {
+    public void testMain() throws Exception {
         System.out.println("main (help)");
         String[] args = {"-h"};
         Main.main(args);

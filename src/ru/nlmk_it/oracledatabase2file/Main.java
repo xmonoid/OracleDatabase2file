@@ -43,13 +43,23 @@ public final class Main {
                 return;
             }
             
-            arguments.setParametersFromConfigFile(new File(System.getProperty("db2file.configurationFile")));
+            arguments.setParametersFromConfigFile(new File(System.getProperty("OracleDatabase2File.configurationFile")));
             
-            try (OracleDatabase2File exporter = new OracleDatabase2File(arguments)) {
+            OracleDatabase2File exporter = new OracleDatabase2File(arguments);
+            try {
                 exporter.execute();
             }
+            finally {
+                exporter.close();
+            }
         }
-        catch (IOException | SQLException | RuntimeException t) {
+        catch (IOException t) {
+            LOGGER.fatal("Fatal error: ", t);
+        }
+        catch (SQLException t) {
+            LOGGER.fatal("Fatal error: ", t);
+        }
+        catch (RuntimeException t) {
             LOGGER.fatal("Fatal error: ", t);
         }
         finally {

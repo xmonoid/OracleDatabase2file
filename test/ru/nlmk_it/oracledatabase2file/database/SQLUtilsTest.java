@@ -52,19 +52,24 @@ public class SQLUtilsTest {
         
         StringBuilder fileData = new StringBuilder();
 	
-        try (BufferedReader reader = new BufferedReader(new FileReader(script))) {
+        BufferedReader reader = new BufferedReader(new FileReader(script));
+        try {
             char[] buf = new char[1024];
             int numRead;
             while((numRead = reader.read(buf)) != -1){
                 String readData = String.valueOf(buf, 0, numRead);
                 fileData.append(readData);
             }
+        }
+        finally {
+            reader.close();
         }
         mrskScript = fileData.toString();
         
         script = new File("./tmp/kvit_mkd.sql");
         fileData = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(script))) {
+        reader = new BufferedReader(new FileReader(script));
+        try {
             char[] buf = new char[1024];
             int numRead;
             while((numRead = reader.read(buf)) != -1){
@@ -72,17 +77,24 @@ public class SQLUtilsTest {
                 fileData.append(readData);
             }
         }
+        finally {
+            reader.close();
+        }
         kvitMkdScript = fileData.toString();
         
         script = new File("./tmp/chas_sector.sql");
         fileData = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(script))) {
+        reader = new BufferedReader(new FileReader(script));
+        try {
             char[] buf = new char[1024];
             int numRead;
             while((numRead = reader.read(buf)) != -1){
                 String readData = String.valueOf(buf, 0, numRead);
                 fileData.append(readData);
             }
+        }
+        finally {
+            reader.close();
         }
         chasSectorScript = fileData.toString();
     }
@@ -95,7 +107,7 @@ public class SQLUtilsTest {
         
         System.out.println("splitScript (empty)");
         String script = "";
-        List<String> expResult = new ArrayList<>();
+        List<String> expResult = new ArrayList<String>();
         List<String> result = SQLUtils.splitScript(script);
         assertEquals(expResult, result);
     }
@@ -107,7 +119,7 @@ public class SQLUtilsTest {
     public void testSplitScriptSpaces() {
         System.out.println("splitScript (spaces)");
         String script = "   \t   \t \u00a0";
-        List<String> expResult = new ArrayList<>();
+        List<String> expResult = new ArrayList<String>();
         expResult.add("\u00a0");
         List<String> result = SQLUtils.splitScript(script);
         assertEquals(expResult, result);
@@ -120,7 +132,7 @@ public class SQLUtilsTest {
     public void testSplitScriptSemicolons() {
         System.out.println("splitScript (semicolons)");
         String script = " ; -- ;\n ; /*;*/ ; ";
-        List<String> expResult = new ArrayList<>();
+        List<String> expResult = new ArrayList<String>();
         expResult.add("-- ;");
         expResult.add("/*;*/");
         List<String> result = SQLUtils.splitScript(script);
@@ -138,7 +150,7 @@ public class SQLUtilsTest {
                 + "/* ; and I will always love you; \n"
                 + "*/\n"
                 + "-- ;";
-        List<String> expResult = new ArrayList<>();
+        List<String> expResult = new ArrayList<String>();
         expResult.add("-- comm1\n\n/* ; and I will always love you; \n*/\n--");
         List<String> result = SQLUtils.splitScript(script);
         assertEquals(expResult, result);
@@ -152,7 +164,7 @@ public class SQLUtilsTest {
         System.out.println("splitScript (one query)");
         String script = "select sysdate\n"
                 + "  from dual   ";
-        List<String> expResult = new ArrayList<>();
+        List<String> expResult = new ArrayList<String>();
         expResult.add(script.trim());
         List<String> result = SQLUtils.splitScript(script);
         assertEquals(expResult, result);
@@ -173,7 +185,7 @@ public class SQLUtilsTest {
                 + "select 'one' \n"
                 + "   from\n"
                 + "   dual";
-        List<String> expResult = new ArrayList<>();
+        List<String> expResult = new ArrayList<String>();
         expResult.add("select sysdate\n  from dual");
         expResult.add("select 1 \n from dual");
         expResult.add("select 'one' \n   from\n   dual");
@@ -203,7 +215,7 @@ public class SQLUtilsTest {
                 + "\n"
                 + "select sysdate\n"
                 + "  from dual;";
-        List<String> expResult = new ArrayList<>();
+        List<String> expResult = new ArrayList<String>();
         expResult.add("select 'г. Липецк ; '              as city, --  */ ;+ && ''' \"\"\"\n"
                 + "       /*\n"
                 + "        * &  -- ' \"\n"
@@ -229,7 +241,7 @@ public class SQLUtilsTest {
     public void testGetVariablesTrivial() {
         System.out.println("getVariables (trivial)");
         String script = "select '1' from dual where &var = 123";
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("var");
         Set<String> result = SQLUtils.getVariables(script, "&");
         assertEquals(expResult, result);
@@ -242,7 +254,7 @@ public class SQLUtilsTest {
     public void testGetVariablesMrsk() {
         System.out.println("getVariables (pdat)");
         String script = mrskScript;
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("pdat");
         Set<String> result = SQLUtils.getVariables(script, "&");
         assertEquals(expResult, result);
@@ -255,7 +267,7 @@ public class SQLUtilsTest {
     public void testGetVariablesKvitMkd() {
         System.out.println("getVariables (pdat, pleskgesk, pdb_lesk, pnot_empty, use_filter)");
         String script = kvitMkdScript;
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("pdat");
         expResult.add("pleskgesk");
         expResult.add("pdb_lesk");
@@ -272,7 +284,7 @@ public class SQLUtilsTest {
     public void testGetVariablesChasSector() {
         System.out.println("getVariables (pdat, cis_division, bill_stat, bseg_stat)");
         String script = chasSectorScript;
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("pdat");
         expResult.add("cis_division");
         expResult.add("bill_stat");
@@ -290,7 +302,7 @@ public class SQLUtilsTest {
         
         String script = "select '1' from dual where &var = 123";
         
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("var");
         
         String copy = SQLUtils.replaceCharSequence(script, "&", ":");
@@ -307,7 +319,7 @@ public class SQLUtilsTest {
     public void testReplaceCharSequenceMrsk() {
         System.out.println("replaceCharSequence (pdat)");
         String script = mrskScript;
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("pdat");
         
         String copy = SQLUtils.replaceCharSequence(script, "&", ":");
@@ -324,7 +336,7 @@ public class SQLUtilsTest {
     public void testReplaceCharSequenceMkd() {
         System.out.println("replaceCharSequence (pdat, pleskgesk, pdb_lesk, pnot_empty, use_filter)");
         String script = kvitMkdScript;
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("pdat");
         expResult.add("pleskgesk");
         expResult.add("pdb_lesk");
@@ -344,7 +356,7 @@ public class SQLUtilsTest {
     public void testReplaceCharSequenceChasSector() {
         System.out.println("replaceCharSequence (pdat, cis_division, bill_stat, bseg_stat)");
         String script = chasSectorScript;
-        Set<String> expResult = new HashSet<>();
+        Set<String> expResult = new HashSet<String>();
         expResult.add("pdat");
         expResult.add("cis_division");
         expResult.add("bill_stat");

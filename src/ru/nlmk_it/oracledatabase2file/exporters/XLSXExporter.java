@@ -101,7 +101,7 @@ final class XLSXExporter extends Exporter {
         ResultSetMetaData rsMetaData = resultSet.getMetaData();
         numberOfColumns = rsMetaData.getColumnCount();
 
-        Map<String, String> fields = new HashMap<>();
+        Map<String, String> fields = new HashMap<String, String>();
         for (int cellnum = 0; cellnum < numberOfColumns; cellnum++) {
             
             String field = rsMetaData.getColumnLabel(cellnum + 1);
@@ -193,7 +193,7 @@ final class XLSXExporter extends Exporter {
         LOGGER.trace("The method export() was invoked:\n"
                 + "\tResultSet resultSet <= " + resultSet);
         
-        Set<ResultSet> resultSets = new HashSet<>();
+        Set<ResultSet> resultSets = new HashSet<ResultSet>();
         resultSets.add(resultSet);
         export(resultSets);
     }
@@ -203,8 +203,8 @@ final class XLSXExporter extends Exporter {
         LOGGER.trace("The method export() was invoked:\n"
                 + "\tSet<ResultSet> resultSets <= " + resultSets);
         
-        try (OutputStream out = new FileOutputStream(createNewExportFile())) {
-            
+        OutputStream out = new FileOutputStream(createNewExportFile());
+        try {
             workbook = new SXSSFWorkbook(xlsxRowsInTheBatch);
             workbook.setCompressTempFiles(true);
             dateCellStyle = workbook.createCellStyle();
@@ -241,6 +241,7 @@ final class XLSXExporter extends Exporter {
             LOGGER.info("Done.");
         }
         finally {
+            out.close();
             if (workbook != null) {
                 LOGGER.info("Temp file deleted: " + workbook.dispose() + ".");
             }

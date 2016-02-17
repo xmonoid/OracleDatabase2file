@@ -30,7 +30,7 @@ public final class SQLUtils {
         LOGGER.trace("The method splitScript() was invoked\n"
             + "\tString script <= " + script);
         
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<String>();
         
         String copy = replaceCommentsStringsAndAliasesToSpace(script);
         
@@ -78,7 +78,7 @@ public final class SQLUtils {
                 + "\tString script <= " + script
                 + "\n\tString variableMarker <= " + variableMarker);
         
-        Set<String> result = new HashSet<>();
+        Set<String> result = new HashSet<String>();
         
         String copy = replaceCommentsStringsAndAliasesToSpace(script);
         

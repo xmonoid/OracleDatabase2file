@@ -42,7 +42,11 @@ public final class SQLScriptConverter implements IStringConverter<SQLScript> {
             LOGGER.trace("convert() returned => " + result);
             return result;
         }
-        catch (SQLException | IOException e) {
+        catch (SQLException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new ParameterException(e);
+        }
+        catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             throw new ParameterException(e);
         }

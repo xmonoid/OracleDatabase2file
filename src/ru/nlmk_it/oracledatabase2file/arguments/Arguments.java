@@ -86,7 +86,7 @@ public final class Arguments {
     @DynamicParameter(names = "-P",
             description = "Parameters of the SQL expression",
             required = false)
-    private Map<String, String> sqlParams = new HashMap<>();
+    private Map<String, String> sqlParams = new HashMap<String, String>();
     
     @Parameter(names = {"-export.filename"},
             description = "The name of the export file(s)",
@@ -150,7 +150,8 @@ public final class Arguments {
                 + "\tFile propertyFile <= " + propertyFile.getAbsolutePath());
         
         Properties properties = new Properties();
-        try (InputStream in = new FileInputStream(propertyFile.getAbsolutePath())) {
+        InputStream in = new FileInputStream(propertyFile.getAbsolutePath());
+        try {
             properties.load(in);
             
             String property = properties.getProperty("url");
@@ -221,6 +222,9 @@ public final class Arguments {
                     || Integer.parseInt(property) != DEFAULT_ROWS_BEFORE_FLUSH)) {
                 this.csvRowsBeforeFlush = Integer.parseInt(property);
             }
+        }
+        finally {
+            in.close();
         }
     }
     
@@ -352,7 +356,7 @@ public final class Arguments {
         LOGGER.trace("The method getSqlParams() was invoked.");
         
         if (sqlParams == null) {
-            sqlParams = new HashMap<>();
+            sqlParams = new HashMap<String, String>();
         }
         
         LOGGER.trace("getSqlParams() was returned => " + sqlParams);

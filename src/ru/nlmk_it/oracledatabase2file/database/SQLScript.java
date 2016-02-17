@@ -58,14 +58,18 @@ public class SQLScript {
         
         fileData = new StringBuilder();
 	
-        try ( // Чтение файла.
-                BufferedReader reader = new BufferedReader(new FileReader(scriptFile))) {
+        // Чтение файла.
+        BufferedReader reader = new BufferedReader(new FileReader(scriptFile));
+        try {
             char[] buf = new char[1024];
             int numRead;
             while((numRead = reader.read(buf)) != -1){
                 String readData = String.valueOf(buf, 0, numRead);
                 fileData.append(readData);
             }
+        }
+        finally {
+            reader.close();
         }
     }
     
@@ -78,7 +82,7 @@ public class SQLScript {
             throw new SQLException("Source file doesn't contain any SQL expressions");
         }
         
-        expressions = new ArrayList<>();
+        expressions = new ArrayList<SQLExpression>();
         
         variables = SQLUtils.getVariables(fileData.toString(), sqlVariableMarker);
         

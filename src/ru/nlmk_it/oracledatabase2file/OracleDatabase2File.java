@@ -82,7 +82,7 @@ public final class OracleDatabase2File implements AutoCloseable {
         
         LOGGER.info("There's selected " + expressions.size() + " expressions.");
         
-        Set<ResultSet> resultSets = new HashSet<>();
+        Set<ResultSet> resultSets = new HashSet<ResultSet>();
         for (SQLExpression expression: expressions) {
             LOGGER.debug("Executing the expression =\n" + expression.toStringShort());
             

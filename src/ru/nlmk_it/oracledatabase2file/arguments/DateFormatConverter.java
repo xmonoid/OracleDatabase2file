@@ -30,8 +30,10 @@ public final class DateFormatConverter implements IStringConverter<DateFormat> {
             LOGGER.trace("convert() returned => " + result);
             return result;
         }
-        catch (IllegalArgumentException | NullPointerException e) {
-            
+        catch (IllegalArgumentException e) {
+            throw new ParameterException(e);
+        }
+        catch (NullPointerException e) {
             throw new ParameterException(e);
         }
     }

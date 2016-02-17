@@ -93,7 +93,7 @@ final class DBFExporter extends Exporter {
     private DBFField[] createFields(ResultSet resultSet) throws SQLException, DBFException {
         LOGGER.trace("The method createFields() was invoked:\n"
                 + "\tResultSet resultSet <= " + resultSet);
-        List<DBFField> fields = new ArrayList<>();
+        List<DBFField> fields = new ArrayList<DBFField>();
 
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
         numberOfColumns = resultSetMetaData.getColumnCount();
@@ -245,7 +245,7 @@ final class DBFExporter extends Exporter {
             writer.addRecord(rowData);
             count++;
             
-            if (count % 25_000 == 0) {
+            if (count % 25000 == 0) {
                 LOGGER.info(count + " rows were added into the file " + actualExportFilename);
             }
         }

@@ -50,13 +50,13 @@ public class OracleDatabase2FileTest {
     @Test
     public void testCheckBindedVariablesCorrect() throws Exception {
         
-        Set<String> requiredVariables = new HashSet<>();
+        Set<String> requiredVariables = new HashSet<String>();
         requiredVariables.add("a");
         requiredVariables.add("b");
         requiredVariables.add("c");
         requiredVariables.add("d");
         
-        Set<String> actualVariables = new HashSet<>();
+        Set<String> actualVariables = new HashSet<String>();
         actualVariables.add("a");
         actualVariables.add("b");
         actualVariables.add("c");
@@ -73,13 +73,13 @@ public class OracleDatabase2FileTest {
     @Test(expected = SQLException.class)
     public void testCheckBindedVariables() throws Exception {
         
-        Set<String> requiredVariables = new HashSet<>();
+        Set<String> requiredVariables = new HashSet<String>();
         requiredVariables.add("a");
         requiredVariables.add("b");
         requiredVariables.add("c");
         requiredVariables.add("d");
         
-        Set<String> actualVariables = new HashSet<>();
+        Set<String> actualVariables = new HashSet<String>();
         actualVariables.add("a");
         actualVariables.add("b");
         actualVariables.add("c");
@@ -98,8 +98,12 @@ public class OracleDatabase2FileTest {
         arguments.setSQLScript(new SQLScript(new File("./queries/trivial.sql")));
         arguments.setExportDir(exportPath);
         
-        try (OracleDatabase2File odf = new OracleDatabase2File(arguments)) {
+        OracleDatabase2File odf = new OracleDatabase2File(arguments);
+        try {
             odf.execute();
+        }
+        finally {
+            odf.close();
         }
     }
 
@@ -114,8 +118,12 @@ public class OracleDatabase2FileTest {
         arguments.setSQLScript(new SQLScript(new File("./queries/first50accounts.sql")));
         arguments.setExportDir(exportPath);
         
-        try (OracleDatabase2File odf = new OracleDatabase2File(arguments)) {
+        OracleDatabase2File odf = new OracleDatabase2File(arguments);
+        try {
             odf.execute();
+        }
+        finally {
+            odf.close();
         }
     }
 }
