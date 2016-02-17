@@ -7,37 +7,35 @@ package ru.nlmk_it.oracledatabase2file.arguments;
 
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.apache.log4j.Logger;
 
 /**
  * The class-converter for directory input.
  * @author Косых Евгений
  */
-public final class DirectoryConverter implements IStringConverter<Path> {
+public final class DirectoryConverter implements IStringConverter<File> {
     
     private static final Logger LOGGER = Logger.getLogger(DirectoryConverter.class);
     
     
     @Override
-    public Path convert(String value) {
+    public File convert(String value) {
         LOGGER.trace("The method convert() was invoked\n"
                 + "\tString value <= " + value);
         
-        Path path = Paths.get(value);
+        File path = new File(value);
         
         try {
-            Files.createDirectory(path);
-            LOGGER.trace("convert() returned => " + path.normalize());
+            path.mkdirs();
+            LOGGER.trace("convert() returned => " + path.getCanonicalPath());
             return path;
         }
         catch (FileAlreadyExistsException e) {
             LOGGER.trace("Directory already exists.");
-            LOGGER.trace("convert() returned => " + path.normalize());
+            LOGGER.trace("convert() returned => " + path.getAbsolutePath());
             return path;
         }
         catch (IOException e) {

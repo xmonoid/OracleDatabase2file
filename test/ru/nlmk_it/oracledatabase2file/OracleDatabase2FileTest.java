@@ -6,8 +6,6 @@
 package ru.nlmk_it.oracledatabase2file;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,12 +24,12 @@ public class OracleDatabase2FileTest {
     
     private Arguments arguments;
     
-    private static Path exportPath;
+    private static File exportPath;
     
     @BeforeClass
     public static void setUpClass() throws Exception {
         
-        exportPath = Paths.get("./export/");
+        exportPath = new File("./export/");
         
     }
 

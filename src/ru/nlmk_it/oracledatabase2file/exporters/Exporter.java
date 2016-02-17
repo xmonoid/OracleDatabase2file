@@ -2,7 +2,6 @@ package ru.nlmk_it.oracledatabase2file.exporters;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -23,7 +22,7 @@ public abstract class Exporter {
     
     protected String actualExportFilename;
     
-    protected final Path exportPath;
+    protected final File exportPath;
     
     protected final String extension;
     
@@ -37,7 +36,7 @@ public abstract class Exporter {
      * @param exportDateFormat 
      */
     protected Exporter(String exportFilename,
-            Path exportPath,
+            File exportPath,
             String extension,
             DateFormat exportDateFormat) {
         LOGGER.trace("The object of Exporter class was created:\n"

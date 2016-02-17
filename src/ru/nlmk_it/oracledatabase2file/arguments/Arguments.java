@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -53,7 +52,7 @@ public final class Arguments {
             description = "The path to the directory where will be the export file",
             required = false,
             converter = DirectoryConverter.class)
-    private Path exportDir;
+    private File exportDir;
     
     @Parameter(names = {"-url"},
             description = "Database URL",
@@ -283,7 +282,7 @@ public final class Arguments {
      * 
      * @return 
      */
-    public Path getExportDir() {
+    public File getExportDir() {
         LOGGER.trace("The method getExportDir() was invoked.");
         LOGGER.trace("getExportDir() was returned => " + exportDir.toString());
         return exportDir;
@@ -293,7 +292,7 @@ public final class Arguments {
      * 
      * @param exportDir 
      */
-    public void setExportDir(Path exportDir) {
+    public void setExportDir(File exportDir) {
         LOGGER.trace("The method setExportDir() was invoked:\n"
                 + "\tPath exportDir <= " + exportDir);
         this.exportDir = exportDir;

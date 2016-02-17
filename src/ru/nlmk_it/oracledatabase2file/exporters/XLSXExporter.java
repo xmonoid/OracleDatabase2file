@@ -5,12 +5,12 @@
  */
 package ru.nlmk_it.oracledatabase2file.exporters;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -77,7 +77,7 @@ final class XLSXExporter extends Exporter {
      * @param exportFilename 
      */
     protected XLSXExporter(String exportFilename,
-            Path exportPath,
+            File exportPath,
             String extension,
             DateFormat dateFormat,
             int xlsxRowsInTheBatch) {
