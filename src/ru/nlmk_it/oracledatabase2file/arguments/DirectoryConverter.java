@@ -9,7 +9,6 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,11 +30,6 @@ public final class DirectoryConverter implements IStringConverter<File> {
         try {
             path.mkdirs();
             LOGGER.trace("convert() returned => " + path.getCanonicalPath());
-            return path;
-        }
-        catch (FileAlreadyExistsException e) {
-            LOGGER.trace("Directory already exists.");
-            LOGGER.trace("convert() returned => " + path.getAbsolutePath());
             return path;
         }
         catch (IOException e) {

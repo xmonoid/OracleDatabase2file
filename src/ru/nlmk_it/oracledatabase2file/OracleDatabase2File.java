@@ -26,7 +26,7 @@ import ru.nlmk_it.oracledatabase2file.exporters.Exporter;
  *
  * @author Косых Евгений
  */
-public final class OracleDatabase2File implements AutoCloseable {
+public final class OracleDatabase2File {
     
     private static final Logger LOGGER = Logger.getLogger(OracleDatabase2File.class);
     
@@ -38,8 +38,9 @@ public final class OracleDatabase2File implements AutoCloseable {
      * 
      * @param arguments
      * @throws SQLException 
+     * @throws java.lang.ClassNotFoundException 
      */
-    public OracleDatabase2File(Arguments arguments) throws SQLException {
+    public OracleDatabase2File(Arguments arguments) throws SQLException, ClassNotFoundException {
         LOGGER.trace("The object of OracleDatabase2File class was created\n"
                 + "\tArguments arguments <= " + arguments.toString());
         
@@ -50,6 +51,8 @@ public final class OracleDatabase2File implements AutoCloseable {
         String login = arguments.getLogin();
         LOGGER.debug("Trying to connect to database: " + url + "\n"
                 + "\tlogin = " + login);
+        
+        Class.forName("oracle.jdbc.driver.OracleDriver");
         
         connection = DriverManager.getConnection(url, login, arguments.getPassword());
         
@@ -126,7 +129,7 @@ public final class OracleDatabase2File implements AutoCloseable {
      * 
      * @throws SQLException 
      */
-    @Override
+    //@Override
     public void close() throws SQLException {
         LOGGER.trace("The method close() was invoked");
         connection.close();
